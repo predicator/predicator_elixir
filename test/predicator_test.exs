@@ -19,14 +19,18 @@ defmodule PredicatorTest do
     assert execute(inst) == false
   end
 
-  @tag :skip
+  # @tag :skip
   test "execute/1 returns integer equal integer" do
     inst = [["lit", 1], ["lit", 1], ["compare", "EQ"]]
+    assert execute(inst) == true
   end
+
+  # Write test to nil check comparison numbers
 
   @tag :skip
   test "execute/1 returns variable equal integer" do
     inst = [["load", "age"], ["lit", 21], ["compare", "EQ"]]
+
   end
 
   @tag :skip

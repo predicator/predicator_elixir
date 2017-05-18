@@ -32,6 +32,16 @@ defmodule Evaluator do
     _execute(get_instruction(machine), machine)
   end
 
+  defp _execute(["compare"|["EQ"|_]], machine=%Evaluator{}) do
+    [left|[right|stack]] = machine.stack
+    val = left == right
+    machine = %Evaluator{ machine |
+      stack: [val|stack],
+      ip: machine.ip + 1
+    }
+    _execute(get_instruction(machine), machine)
+  end
+
   defp get_instruction(machine=%Evaluator{}) do
     if machine.ip < Enum.count(machine.instructions) do
       Enum.at(machine.instructions, machine.ip)
