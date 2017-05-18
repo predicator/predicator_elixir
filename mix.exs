@@ -1,0 +1,29 @@
+defmodule Predicator.Mixfile do
+  use Mix.Project
+
+  def project do
+    [
+      app: :predicator,
+      version: "0.1.0",
+      elixir: "~> 1.4",
+      build_embedded: Mix.env == :prod,
+      start_permanent: Mix.env == :prod,
+      deps: deps()
+    ]
+  end
+
+  # OTP Configuration
+  def application do
+    [
+      mod: {Predicator.Application, []},
+      extra_applications: [
+        :logger
+      ]
+    ]
+  end
+
+  # Dependencies
+  defp deps do
+    []
+  end
+end
