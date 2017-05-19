@@ -1,6 +1,11 @@
+defmodule User do
+  defstruct [name: "Joshua", age: 29]
+end
+
 defmodule PredicatorTest do
   use ExUnit.Case
   import Evaluator
+
 
   test "execute/1 returns true" do
     inst = [["lit", true]]
@@ -25,33 +30,42 @@ defmodule PredicatorTest do
     assert execute(inst) == true
   end
 
+  test "execute/1 returns integer not equal to false" do
+    inst = [["lit", 1], ["lit", nil], ["compare", "EQ"]]
+    assert execute(inst) == false
+  end
+
   # Write test to nil check comparison numbers
 
-  @tag :skip
+  # @tag :skip
+  # NOTE: fix test struct
   test "execute/1 returns variable equal integer" do
-    inst = [["load", "age"], ["lit", 21], ["compare", "EQ"]]
-
+    inst = [["load", "age"], ["lit", 29], ["compare", "EQ"]]
+    assert execute(inst, %User{}) == true
   end
 
-  @tag :skip
+  # @tag :skip
   test "execute/1 returns integer greater than integer" do
     inst = [["lit", 2], ["lit", 1], ["compare", "GT"]]
-    assert execute(inst) == []
+    assert execute(inst) == true
   end
 
-  @tag :skip
+  # @tag :skip
   test "execute/1 returns true and true" do
     inst = [["lit", true], ["jfalse", 2], ["lit", true]]
+    assert execute(inst) == true
   end
 
-  @tag :skip
+  # @tag :skip
   test "execute/1 returns true or false" do
     inst = [["lit", true], ["jtrue", 2], ["lit", false]]
+    assert execute(inst) == true
   end
 
-  @tag :skip
+  # @tag :skip
   test "execute/1 returns false or integer equal integer" do
     inst = [["lit", false], ["jtrue", 4], ["lit", 1], ["lit", 1], ["compare", "EQ"]]
+    assert execute(inst) == true
   end
 
 end
