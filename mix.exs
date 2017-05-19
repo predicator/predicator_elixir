@@ -23,7 +23,5 @@ defmodule Predicator.Mixfile do
   end
 
   # Dependencies
-  defp deps do
-    []
-  end
+  defp deps, do: []
 end
