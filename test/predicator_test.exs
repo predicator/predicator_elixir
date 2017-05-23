@@ -19,9 +19,14 @@ defmodule PredicatorTest do
   end
 
   # @tag :skip
-  test "execute/1 returns not" do
+  test "execute/1 returns not true" do
     inst = [["lit", true], ["not"]]
     assert execute(inst) == false
+  end
+
+  test "execute/1 returns not false" do
+    inst = [["lit", false], ["not"]]
+    assert execute(inst) == true
   end
 
   # @tag :skip

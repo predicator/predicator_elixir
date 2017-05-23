@@ -9,6 +9,8 @@ defmodule Evaluator do
 
   defstruct instructions: [], stack: [], ip: 0, context_struct: nil
 
+
+  @spec execute(list(), struct()|map()) :: Machine.t()
   def execute(inst, context_struct \\ %{}) do
     machine = %Evaluator{instructions: inst, context_struct: context_struct}
     _execute(get_instruction(machine), machine)
@@ -23,8 +25,7 @@ defmodule Evaluator do
     _execute(get_instruction(machine), machine)
   end
 
-  defp _execute(["not"|_], machine=%Evaluator{}) do
-    val = machine.stack |> List.pop_at(0)
+  defp _execute(["not"|_], machine=%Evaluator{stack: [val|rest_of_stack]}) do
     machine = %Evaluator{ machine | stack: [!val|machine.stack], ip: machine.ip + 1 }
     _execute(get_instruction(machine), machine)
   end
@@ -54,8 +55,7 @@ defmodule Evaluator do
   end
 
   defp _execute(["load"|[val|_]], machine=%Evaluator{}) do
-    val = String.to_atom(val)
-    user_key = Map.get(machine.context_struct, val)
+    user_key = Map.get(machine.context_struct, String.to_atom(val))
     machine = %Evaluator{ machine | stack: [user_key|machine.stack], ip: machine.ip + 1 }
     _execute(get_instruction(machine), machine)
   end
