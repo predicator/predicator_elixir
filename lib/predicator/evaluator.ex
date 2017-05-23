@@ -2,9 +2,10 @@ defmodule Evaluator do
   @doc """
   execute/2 takes an instruction set and context struct
 
-  inst = [["lit", true]]
-  inst = [["lit", 30], ["lit", 432], ["compare", "GT"]]
-  inst = [["lit", false], ["jtrue", 4], ["lit", 1], ["lit", 1], ["compare", "EQ"]]
+  Example instructions sets:
+    inst = [["lit", true]]
+    inst = [["lit", 30], ["lit", 432], ["compare", "GT"]]
+    inst = [["lit", false], ["jtrue", 4], ["lit", 1], ["lit", 1], ["compare", "EQ"]]
   """
 
   defstruct instructions: [], stack: [], ip: 0, context_struct: nil
@@ -41,7 +42,6 @@ defmodule Evaluator do
     machine = %Evaluator{ machine| stack: [false| machine.stack] }
     _execute(get_instruction(machine), machine)
   end
-
   defp _execute(["compare"|["GT"|_]], machine=%Evaluator{stack: [second|[first|rest_of_stack]]})
     when is_nil(second) != nil
     when is_nil(first) != nil do

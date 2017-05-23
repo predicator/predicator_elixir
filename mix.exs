@@ -8,7 +8,21 @@ defmodule Predicator.Mixfile do
       elixir: "~> 1.4",
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
+      package: package(),
+      description: description(),
       deps: deps()
+    ]
+  end
+
+  def description(), do: "Predicator Evaluator in elixir"
+
+  def package do
+    [
+      name: :predicator,
+      maintainers: ["Joshua Richardson"],
+      licenses: ["MIT"],
+      docs: [extras: ["README.md"]],
+      links: %{"GitHub" => "https://github.com/predicator/predicator_elixir"}
     ]
   end
 
@@ -23,5 +37,9 @@ defmodule Predicator.Mixfile do
   end
 
   # Dependencies
-  defp deps, do: []
+  defp deps() do
+    [
+      {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
+    ]
+  end
 end
