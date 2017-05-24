@@ -40,6 +40,7 @@ defmodule Predicator.Mixfile do
   defp deps() do
     [
       {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
+      {:ex_doc, "~> 0.15.1", only: :dev},
     ]
   end
 end
