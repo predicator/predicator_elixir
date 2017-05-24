@@ -18,18 +18,6 @@ The package can be installed by:
   end
   ```
 
-2. Ensure `predicator` is started in your application:
-
-  ```elixir
-  def application do
-    [
-      applications: [
-        :predicator
-      ]
-    ]
-  end
-  ```
-
 ### Using
 
 _examples to come_
