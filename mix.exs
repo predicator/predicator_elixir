@@ -16,7 +16,7 @@ defmodule Predicator.Mixfile do
 
   def description(), do: "Predicator Evaluator in elixir"
 
-  def package do
+  def package() do
     [
       name: :predicator,
       maintainers: ["Joshua Richardson"],
@@ -26,8 +26,7 @@ defmodule Predicator.Mixfile do
     ]
   end
 
-  # OTP Configuration
-  def application do
+  def application() do
     [
       mod: {Predicator.Application, []},
       extra_applications: [
@@ -36,7 +35,6 @@ defmodule Predicator.Mixfile do
     ]
   end
 
-  # Dependencies
   defp deps() do
     [
       {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
