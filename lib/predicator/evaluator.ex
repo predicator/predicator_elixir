@@ -54,6 +54,13 @@ defmodule Evaluator do
     _execute(get_instruction(machine), machine)
   end
 
+  # [["lit", 2], ["lit", 1], ["lit", 5], ["compare", "BETWEEN"]]
+  defp _execute(["compare"|["BETWEEN"|_]], machine=%Machine{stack: [max|[min|[val|rest_of_stack]]]}) do
+    res = Enum.member?(min..max, val)
+    machine = %Machine{ machine| stack: [res|rest_of_stack], ip: machine.ip + 1 }
+    _execute(get_instruction(machine), machine)
+  end
+
   defp _execute(["load"|[val|_]], machine=%Machine{}) do
     user_key = Map.get(machine.context_struct, String.to_atom(val))
     machine = %Machine{ machine | stack: [user_key|machine.stack], ip: machine.ip + 1 }
@@ -83,11 +90,10 @@ defmodule Evaluator do
   end
 
   defp get_instruction(machine=%Machine{}) do
+    # IO.inspect(machine.stack)
     case machine.ip < Enum.count(machine.instructions) do
-      true ->
-        Enum.at(machine.instructions, machine.ip)
-      _ ->
-        nil
+      true -> Enum.at(machine.instructions, machine.ip)
+      _ -> nil
     end
   end
 end

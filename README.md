@@ -2,9 +2,7 @@
 
 _Currently has working Evaluator for Predicator instructions_
 
-
-predicator_elixir is a predicate evaluator for compiled rules from [(predicator)](https://github.com/johnnyt/predicator)
-
+predicator_elixir is currently a predicate evaluator for compiled rules from [(predicator)](https://github.com/predicator/predicator)
 
 ### Installation
 

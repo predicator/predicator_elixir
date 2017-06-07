@@ -2,7 +2,12 @@ defmodule Machine do
   @moduledoc """
   A Machine Struct is comprised of the instructions set, the current stack, the instruction pointer and the context struct.
   """
-  defstruct instructions: [], stack: [], ip: 0, context_struct: nil
+  defstruct [
+    instructions: [],
+    stack: [],
+    ip: 0,
+    context_struct: nil
+  ]
 
   @type t :: %Machine{
     instructions: [] | [...],

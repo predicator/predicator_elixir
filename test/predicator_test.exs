@@ -44,7 +44,7 @@ defmodule PredicatorTest do
 
   # @tag :skip
   # NOTE: fix test struct
-  test "execute/1 returns variable equal integer" do
+  test "execute/2 returns variable equal integer" do
     inst = [["load", "age"], ["lit", 29], ["compare", "EQ"]]
     assert execute(inst, %User{}) == true
   end
@@ -71,6 +71,17 @@ defmodule PredicatorTest do
   test "execute/1 returns false or integer equal integer" do
     inst = [["lit", false], ["jtrue", 4], ["lit", 1], ["lit", 1], ["compare", "EQ"]]
     assert execute(inst) == true
+  end
+
+  # @tag :skip
+  test "execute/1 inclusive evaluation of integer between integers" do
+    inst = [["lit", 3], ["lit", 1], ["lit", 5], ["compare", "BETWEEN"]]
+    inst2 = [["lit", 1], ["lit", 1], ["lit", 5], ["compare", "BETWEEN"]]
+    inst3 = [["lit", 5], ["lit", 1], ["lit", 5], ["compare", "BETWEEN"]]
+
+    assert execute(inst) == true
+    assert execute(inst2) == true
+    assert execute(inst3) == true
   end
 
 end
