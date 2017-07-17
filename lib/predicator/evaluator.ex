@@ -1,4 +1,4 @@
-defmodule Evaluator do
+defmodule Predicator.Evaluator do
   @doc """
   execute/2 takes an instruction set and context struct
 
@@ -10,6 +10,7 @@ defmodule Evaluator do
 
     inst = [["lit", false], ["jtrue", 4], ["lit", 1], ["lit", 1], ["compare", "EQ"]]
   """
+  alias Predicator.Machine
 
   @spec execute(list(), struct()|map()) :: Machine.t()
   def execute(inst, context_struct \\ %{}) do

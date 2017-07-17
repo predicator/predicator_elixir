@@ -4,7 +4,7 @@ end
 
 defmodule PredicatorTest do
   use ExUnit.Case
-  import Evaluator
+  import Predicator.Evaluator
 
 
   test "execute/1 returns true" do

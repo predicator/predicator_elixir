@@ -1,4 +1,4 @@
-defmodule Machine do
+defmodule Predicator.Machine do
   @moduledoc """
   A Machine Struct is comprised of the instructions set, the current stack, the instruction pointer and the context struct.
   """
@@ -9,7 +9,7 @@ defmodule Machine do
     context_struct: nil
   ]
 
-  @type t :: %Machine{
+  @type t :: %__MODULE__{
     instructions: [] | [...],
     stack: [] | [...],
     ip: non_neg_integer(),
