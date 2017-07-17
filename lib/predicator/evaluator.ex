@@ -21,6 +21,10 @@ defmodule Evaluator do
     hd(machine.stack)
   end
 
+  defp _execute(["array"|[val|_]], machine=%Machine{}) do
+    machine = %Machine{ machine | stack: [val|machine.stack], ip: machine.ip + 1 }
+    _execute(get_instruction(machine), machine)
+  end
   defp _execute(["lit"|[val|_]], machine=%Machine{}) do
     machine = %Machine{ machine | stack: [val|machine.stack], ip: machine.ip + 1 }
     _execute(get_instruction(machine), machine)
@@ -42,6 +46,31 @@ defmodule Evaluator do
     machine = %Machine{ machine| stack: [false| machine.stack] }
     _execute(get_instruction(machine), machine)
   end
+
+  defp _execute(["compare"|["IN"|_]], machine=%Machine{stack: [left|[right|rest_of_stack]]})
+    when is_nil(left) != nil
+    when is_nil(right) != nil do
+      val = Enum.member?(left, right)
+      machine = %Machine{ machine | stack: [val|rest_of_stack], ip: machine.ip + 1 }
+      _execute(get_instruction(machine), machine)
+  end
+  defp _execute(["compare"|["IN"|_]], machine) do
+    machine = %Machine{ machine| stack: [false| machine.stack] }
+    _execute(get_instruction(machine), machine)
+  end
+
+  defp _execute(["compare"|["NOTIN"|_]], machine=%Machine{stack: [left|[right|rest_of_stack]]})
+    when is_nil(left) != nil
+    when is_nil(right) != nil do
+      val = !Enum.member?(left, right)
+      machine = %Machine{ machine | stack: [val|rest_of_stack], ip: machine.ip + 1 }
+      _execute(get_instruction(machine), machine)
+  end
+  defp _execute(["compare"|["NOTIN"|_]], machine) do
+    machine = %Machine{ machine| stack: [false| machine.stack] }
+    _execute(get_instruction(machine), machine)
+  end
+
   defp _execute(["compare"|["GT"|_]], machine=%Machine{stack: [second|[first|rest_of_stack]]})
     when is_nil(second) != nil
     when is_nil(first) != nil do

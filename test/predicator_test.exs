@@ -35,6 +35,26 @@ defmodule PredicatorTest do
     assert execute(inst) == true
   end
 
+  test "integer in list" do
+    inst = [["lit", 1], ["array", [1, 2]], ["compare", "IN"]]
+    assert execute(inst) == true
+  end
+
+  test "string in list" do
+    inst = [["lit", "UT"], ["array", ["UT", "NM"]], ["compare", "IN"]]
+    assert execute(inst) == true
+  end
+
+  test "integer not in list" do
+    inst = [["lit", 3], ["array", [1, 2]], ["compare", "NOTIN"]]
+    assert execute(inst) == true
+  end
+
+  test "string not in list" do
+    inst = [["lit", "NY"], ["array", ["UT", "NM"]], ["compare", "NOTIN"]]
+    assert execute(inst) == true
+  end
+
   test "execute/1 returns integer not equal to false" do
     inst = [["lit", 1], ["lit", nil], ["compare", "EQ"]]
     assert execute(inst) == false
