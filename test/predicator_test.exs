@@ -69,6 +69,16 @@ defmodule PredicatorTest do
     assert execute(inst, %User{}) == true
   end
 
+  test "execute/2 returns variable greater_than integer" do
+    inst = [["load", "age"], ["lit", 20], ["compare", "GT"]]
+    assert execute(inst, %User{}) == true
+  end
+
+  test "execute/2 returns variable less_than integer" do
+    inst = [["load", "age"], ["lit", 30], ["compare", "LT"]]
+    assert execute(inst, %User{}) == true
+  end
+
   # @tag :skip
   test "execute/1 returns integer greater than integer" do
     inst = [["lit", 2], ["lit", 1], ["compare", "GT"]]

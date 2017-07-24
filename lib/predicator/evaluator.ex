@@ -1,4 +1,6 @@
 defmodule Predicator.Evaluator do
+  alias Predicator.Machine
+
   @doc """
   execute/2 takes an instruction set and context struct
 
@@ -10,8 +12,6 @@ defmodule Predicator.Evaluator do
 
     inst = [["lit", false], ["jtrue", 4], ["lit", 1], ["lit", 1], ["compare", "EQ"]]
   """
-  alias Predicator.Machine
-
   @spec execute(list(), struct()|map()) :: Machine.t()
   def execute(inst, context_struct \\ %{}) do
     machine = %Machine{instructions: inst, context_struct: context_struct}
@@ -80,6 +80,18 @@ defmodule Predicator.Evaluator do
       _execute(get_instruction(machine), machine)
   end
   defp _execute(["compare"|["GT"|_]], machine) do
+    machine = %Machine{ machine| stack: [false| machine.stack] }
+    _execute(get_instruction(machine), machine)
+  end
+
+  defp _execute(["compare"|["LT"|_]], machine=%Machine{stack: [second|[first|rest_of_stack]]})
+    when is_nil(second) != nil
+    when is_nil(first) != nil do
+      val = first < second
+      machine = %Machine{ machine | stack: [val|machine.stack], ip: machine.ip + 1 }
+      _execute(get_instruction(machine), machine)
+  end
+  defp _execute(["compare"|["LT"|_]], machine) do
     machine = %Machine{ machine| stack: [false| machine.stack] }
     _execute(get_instruction(machine), machine)
   end
