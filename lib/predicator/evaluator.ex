@@ -1,18 +1,20 @@
 defmodule Predicator.Evaluator do
   alias Predicator.Machine
+  alias Predicator.InstructionError
 
   @doc """
   execute/2 takes an instruction set and context struct
 
   Example instructions sets:
 
-    inst = [["lit", true]]
+    iex> execute([["lit", true]])
+    true
 
-    inst = [["lit", 30], ["lit", 432], ["compare", "GT"]]
+    iex> [["lit", 30], ["lit", 432], ["compare", "GT"]]
 
     inst = [["lit", false], ["jtrue", 4], ["lit", 1], ["lit", 1], ["compare", "EQ"]]
   """
-  @spec execute(list(), struct()|map()) :: boolean()
+  @spec execute(list(), struct()|map()) :: boolean() | {:error, InstructionError.t()}
   def execute(inst, context_struct \\ %{}) do
     machine = %Machine{instructions: inst, context_struct: context_struct}
     _execute(get_instruction(machine), machine)
@@ -129,6 +131,15 @@ defmodule Predicator.Evaluator do
         %Machine{machine| stack: tl(machine.stack), ip: machine.ip + 1}
     end
     _execute(get_instruction(machine), machine)
+  end
+
+  defp _execute([non_recognized_predicate|_], machine=%Machine{}) do
+    error = %InstructionError{
+      predicate: non_recognized_predicate,
+      instructions: machine.instructions,
+      instruction_pointer: machine.ip
+    }
+    {:error, error}
   end
 
   defp get_instruction(machine=%Machine{}) do
