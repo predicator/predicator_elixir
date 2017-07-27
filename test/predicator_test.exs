@@ -114,4 +114,23 @@ defmodule PredicatorTest do
     assert execute(inst3) == true
   end
 
+  test "execute/1 outputs error tuple when evaluating an invalid predicate" do
+    inst = [["blabla", 2345], ["something", 342]]
+    assert execute(inst) == {:error, %Predicator.InstructionError{
+      error: "Non valid predicate instruction",
+      instructions: [["blabla", 2345], ["something", 342]],
+      predicate: "blabla",
+      instruction_pointer: 0
+    }}
+  end
+
+  test "execute/1 outputs error tuple with correct instruction pointer on invalid predicate" do
+    inst = [["lit", 3], ["blabla", 2345]]
+    assert execute(inst) == {:error, %Predicator.InstructionError{
+      error: "Non valid predicate instruction",
+      instructions: [["lit", 3], ["blabla", 2345]],
+      predicate: "blabla",
+      instruction_pointer: 1
+    }}
+  end
 end
