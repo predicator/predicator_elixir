@@ -12,7 +12,7 @@ defmodule Predicator.Evaluator do
 
     inst = [["lit", false], ["jtrue", 4], ["lit", 1], ["lit", 1], ["compare", "EQ"]]
   """
-  @spec execute(list(), struct()|map()) :: Machine.t()
+  @spec execute(list(), struct()|map()) :: boolean()
   def execute(inst, context_struct \\ %{}) do
     machine = %Machine{instructions: inst, context_struct: context_struct}
     _execute(get_instruction(machine), machine)
