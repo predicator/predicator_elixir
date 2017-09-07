@@ -47,6 +47,10 @@ defmodule Predicator.Evaluator do
     machine = %Machine{machine| stack: [String.to_existing_atom(loaded_val)], ip: machine.ip + 1 }
     _execute(get_instruction(machine), machine)
   end
+  defp _execute(["to_bool"|_], machine=%Machine{stack: [loaded_val|_]}) when is_boolean(loaded_val) do
+    machine = %Machine{machine| stack: [loaded_val], ip: machine.ip + 1 }
+    _execute(get_instruction(machine), machine)
+  end
   defp _execute(["to_bool"|_], machine=%Machine{}) do
     error = %ValueError{
       instruction_pointer: machine.ip,
