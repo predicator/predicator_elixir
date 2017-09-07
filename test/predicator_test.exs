@@ -1,5 +1,5 @@
 defmodule User do
-  defstruct [name: "Joshua", age: 29]
+  defstruct [name: "Joshua", age: 29, metalhead: "true", is_superhero: "falsse"]
 end
 
 defmodule PredicatorTest do
@@ -12,16 +12,33 @@ defmodule PredicatorTest do
     assert execute(inst) == true
   end
 
-  # @tag :skip
   test "execute/1 returns false" do
     inst = [["lit", false]]
     assert execute(inst) == false
   end
 
-  # @tag :skip
   test "execute/1 returns not true" do
     inst = [["lit", true], ["not"]]
     assert execute(inst) == false
+  end
+
+  test "execute/1 returns to_bool values" do
+    inst = [["load", "metalhead"], ["to_bool"]]
+    assert execute(inst, %User{}) == true
+  end
+
+  test "execute/2 returns to_bool error tuple" do
+    inst2 = [["load", "is_superhero"], ["to_bool"]]
+
+    assert execute(inst2, %User{}) ==
+    {:error,
+      %Predicator.ValueError{
+        error: "Non valid load value to evaluate",
+        instruction_pointer: 1,
+        instructions: [["load", "is_superhero"], ["to_bool"]],
+        stack: ["falsse"]
+      }
+    }
   end
 
   test "execute/1 returns not false" do
@@ -29,7 +46,6 @@ defmodule PredicatorTest do
     assert execute(inst) == true
   end
 
-  # @tag :skip
   test "execute/1 returns integer equal integer" do
     inst = [["lit", 1], ["lit", 1], ["compare", "EQ"]]
     assert execute(inst) == true
@@ -62,7 +78,6 @@ defmodule PredicatorTest do
 
   # Write test to nil check comparison numbers
 
-  # @tag :skip
   # NOTE: fix test struct
   test "execute/2 returns variable equal integer" do
     inst = [["load", "age"], ["lit", 29], ["compare", "EQ"]]
@@ -79,31 +94,26 @@ defmodule PredicatorTest do
     assert execute(inst, %User{}) == true
   end
 
-  # @tag :skip
   test "execute/1 returns integer greater than integer" do
     inst = [["lit", 2], ["lit", 1], ["compare", "GT"]]
     assert execute(inst) == true
   end
 
-  # @tag :skip
   test "execute/1 returns true and true" do
     inst = [["lit", true], ["jfalse", 2], ["lit", true]]
     assert execute(inst) == true
   end
 
-  # @tag :skip
   test "execute/1 returns true or false" do
     inst = [["lit", true], ["jtrue", 2], ["lit", false]]
     assert execute(inst) == true
   end
 
-  # @tag :skip
   test "execute/1 returns false or integer equal integer" do
     inst = [["lit", false], ["jtrue", 4], ["lit", 1], ["lit", 1], ["compare", "EQ"]]
     assert execute(inst) == true
   end
 
-  # @tag :skip
   test "execute/1 inclusive evaluation of integer between integers" do
     inst = [["lit", 3], ["lit", 1], ["lit", 5], ["compare", "BETWEEN"]]
     inst2 = [["lit", 1], ["lit", 1], ["lit", 5], ["compare", "BETWEEN"]]

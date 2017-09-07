@@ -42,6 +42,20 @@ defmodule Predicator.Evaluator do
     _execute(get_instruction(machine), machine)
   end
 
+  defp _execute(["to_bool"|_], machine=%Machine{stack: [loaded_val|_]})
+    when loaded_val in ["true", "false"] do
+    machine = %Machine{machine| stack: [String.to_existing_atom(loaded_val)], ip: machine.ip + 1 }
+    _execute(get_instruction(machine), machine)
+  end
+  defp _execute(["to_bool"|_], machine=%Machine{}) do
+    error = %ValueError{
+      instruction_pointer: machine.ip,
+      instructions: machine.instructions,
+      stack: machine.stack
+    }
+    {:error, error}
+  end
+
   defp _execute(["compare"|["EQ"|_]], machine=%Machine{stack: [left|[right|rest_of_stack]]}) do
       val = left == right
       machine = %Machine{ machine | stack: [val|rest_of_stack], ip: machine.ip + 1 }
@@ -140,7 +154,7 @@ defmodule Predicator.Evaluator do
     error = %InstructionError{
       predicate: non_recognized_predicate,
       instructions: machine.instructions,
-      instruction_pointer: machine.ip
+      instruction_pointer: machine.ip,
     }
     {:error, error}
   end
