@@ -37,7 +37,7 @@ defmodule Predicator.Evaluator do
     _execute(get_instruction(machine), machine)
   end
 
-  defp _execute(["not"|_], machine=%Machine{stack: [val|rest_of_stack]}) do
+  defp _execute(["not"|_], machine=%Machine{stack: [val|_rest_of_stack]}) do
     machine = %Machine{ machine | stack: [!val|machine.stack], ip: machine.ip + 1 }
     _execute(get_instruction(machine), machine)
   end
@@ -86,7 +86,7 @@ defmodule Predicator.Evaluator do
     _execute(get_instruction(machine), machine)
   end
 
-  defp _execute(["compare"|["GT"|_]], machine=%Machine{stack: [second|[first|rest_of_stack]]}) do
+  defp _execute(["compare"|["GT"|_]], machine=%Machine{stack: [second|[first|_rest_of_stack]]}) do
       val = first > second
       machine = %Machine{ machine | stack: [val|machine.stack], ip: machine.ip + 1 }
       _execute(get_instruction(machine), machine)
@@ -96,7 +96,7 @@ defmodule Predicator.Evaluator do
     _execute(get_instruction(machine), machine)
   end
 
-  defp _execute(["compare"|["LT"|_]], machine=%Machine{stack: [second|[first|rest_of_stack]]}) do
+  defp _execute(["compare"|["LT"|_]], machine=%Machine{stack: [second|[first|_rest_of_stack]]}) do
       val = first < second
       machine = %Machine{ machine | stack: [val|machine.stack], ip: machine.ip + 1 }
       _execute(get_instruction(machine), machine)
