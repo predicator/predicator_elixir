@@ -8,7 +8,6 @@ defmodule Predicator.ValueError do
 
   defstruct [
     error: "Non valid load value to evaluate",
-    value: nil,
     instructions: nil,
     stack: nil,
     instruction_pointer: nil
