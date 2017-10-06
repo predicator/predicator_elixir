@@ -8,33 +8,28 @@ defmodule Predicator.Evaluator do
     ValueError,
   }
 
-  @doc """
-  execute/1 takes an instruction set and evaluates
+  @doc ~S"""
+  Execute will evaluate a predicator instruction set.
 
-  Example:
+  If your context struct is using string_keyed map then you will need to pass in the
+  `[map_type: :string]` options to the execute function to evaluate.
 
-    iex> execute([["lit", true]])
-    true
+  ### Examples:
 
-    iex> execute([["lit", 2], ["lit", 3], ["compare", "LT"]])
-    true
+      iex> Predicator.Evaluator.execute([["lit", true]])
+      true
 
-  execute/2 takes an instruction set and context struct
+      iex> Predicator.Evaluator.execute([["lit", 2], ["lit", 3], ["compare", "LT"]])
+      true
 
-  Example:
+      iex> Predicator.Evaluator.execute([["load", "age"], ["lit", 18], ["compare", "GT"]], %{age: 19})
+      true
 
-    iex> Predicator.Evaluator.execute([["load", "age"], ["lit", 18], ["compare", "GT"]], %{age: 19})
-    true
+      iex> Predicator.Evaluator.execute([["load", "name"], ["lit", "jrichocean"], ["compare", "EQ"]], %{age: 19})
+      {:error, %Predicator.ValueError{error: "Non valid load value to evaluate", instruction_pointer: 0, instructions: [["load", "name"], ["lit", "jrichocean"], ["compare", "EQ"]], stack: [], opts: [map_type: :atom]}}
 
-    iex> Predicator.Evaluator.execute([["load", "name"], ["lit", "jrichocean"], ["compare", "EQ"]], %{age: 19})
-    {:error, %Predicator.ValueError{error: "Non valid load value to evaluate", instruction_pointer: 0, instructions: [["load", "name"], ["lit", "jrichocean"], ["compare", "EQ"]], stack: [], opts: [map_type: :atom]}}
-
-  execute/3 takes an additional keyword_list set of options.
-
-  Example:
-
-    iex> Predicator.Evaluator.execute([["load", "age"], ["lit", 18], ["compare", "GT"]], %{"age" => 19}, [map_type: :string])
-    true
+      iex> Predicator.Evaluator.execute([["load", "age"], ["lit", 18], ["compare", "GT"]], %{"age" => 19}, [map_type: :string])
+      true
 
   """
   @spec execute(list(), struct()|map()) :: boolean() | {:error, InstructionError.t()|ValueError.t()}
@@ -176,7 +171,7 @@ defmodule Predicator.Evaluator do
     end
   end
 
-  def value_error(machine=%Machine{}) do
+  defp value_error(machine=%Machine{}) do
     {:error, %ValueError{
         stack: machine.stack,
         instructions: machine.instructions,
@@ -186,7 +181,7 @@ defmodule Predicator.Evaluator do
     }
   end
 
-  def instruction_error(machine=%Machine{}, predicate) do
+  defp instruction_error(machine=%Machine{}, predicate) do
     {:error, %InstructionError{
       predicate: predicate,
       instructions: machine.instructions,
