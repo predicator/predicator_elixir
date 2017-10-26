@@ -20,3 +20,5 @@ erl_crash.dump
 *.ez
 
 /config/
+
+src/*.erl
