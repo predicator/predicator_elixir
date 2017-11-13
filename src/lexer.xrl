@@ -15,10 +15,9 @@ IDENTIFIER = [a-z][A-Za-z0-9_]*
 
 Rules.
 
-
 {Dot}          : skip_token.
 {WHITESPACE}+  : skip_token.
-{INT}          : {token, {int,  TokenLine, TokenChars}}.
+{INTEGER}      : {token, {int,  TokenLine, TokenChars}}.
 {ATOM}         : {token, {atom, TokenLine, TokenChars}}.
 
 {TRUE}         : {token, {'true', TokenLine, TokenChars}}.
