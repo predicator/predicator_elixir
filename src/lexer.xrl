@@ -1,27 +1,37 @@
 Definitions.
 
-INTEGER    = [0-9]+
-ATOM       = :[a-z_]+
-WHITESPACE = [\s\t\n\r]
+WHITESPACE   = [\s\t\n\r]
 
-% COMPARATOR = (<|<=|=|>=|>)
-IDENTIFIER   = [a-z][A-Za-z0-9_]*
-GREATER_THAN = (gt|GT|>)
-LESS_THAN    = (lt|LT|<)
 EQUAL        = (==|=|===|equal)
+LESS_THAN    = (lt|LT|<)
+GREATER_THAN = (gt|GT|>)
+
+ATOM         = :[a-z_]+
+IDENTIFIER   = [a-z][A-Za-z0-9_]*
+INTEGER      = [0-9]+
+BOOLEAN      = (true|false)
+
 
 Rules.
 
 {WHITESPACE}   : skip_token.
-not            : {token, {}}
-and            : {token, {join, TokenLine, list_to_atom(TokenChars)}}.
-true           : {token, {lit, TokenLine, list_to_existing_atom(TokenChars)}}.
-false          : {token, {lit, TokenLine, list_to_existing_atom(TokenChars)}}.
+
 {GREATER_THAN} : {token, {comparator, TokenLine, 'GT'}}.
 {LESS_THAN}    : {token, {comparator, TokenLine, 'LT'}}.
 {EQUAL}        : {token, {comparator, TokenLine, 'EQ'}}.
-{INTEGER}      : {token, {lit, TokenLine, list_to_integer(TokenChars)}}.
+
+and            : {token, {jfalse, TokenLine, list_to_existing_atom(TokenChars)}}.
+or             : {token, {jtrue, TokenLine, list_to_existing_atom(TokenChars)}}.
+
+{BOOLEAN}      : {token, {lit, TokenLine, list_to_existing_atom(TokenChars)}}.
+{ATOM}         : {token, {load, TokenLine, list_to_atom(TokenChars)}}.
 {IDENTIFIER}   : {token, {load, TokenLine, TokenChars}}.
+{INTEGER}      : {token, {lit, TokenLine, list_to_integer(TokenChars)}}.
 
 
 Erlang code.
+
+
+
+% [["load", "age"], ["lit", 21],  ["compare", "GT"],   ["jfalse", 4], ["lit", 14], ["lit", 234], ["compare", "LT"]]
+% [[:load, 'this'], [:lit, true], [:comparator, :EQ]], :jfalse,       [[:lit, 14], [:lit, 234],  [:comparator, :LT]]
