@@ -55,8 +55,7 @@ defmodule Predicator.Evaluator do
     _execute(get_instruction(machine), machine)
   end
 
-  defp _execute(["to_bool"|_], machine=%Machine{stack: [loaded_val|_]})
-    when loaded_val in ["true", "false"] do
+  defp _execute(["to_bool"|_], machine=%Machine{stack: [loaded_val|_]}) when loaded_val in ["true", "false"] do
     machine = %Machine{machine| stack: [String.to_existing_atom(loaded_val)], ip: machine.ip + 1 }
     _execute(get_instruction(machine), machine)
   end
@@ -143,10 +142,8 @@ defmodule Predicator.Evaluator do
   defp _execute(["jfalse"|[offset|_]], machine=%Machine{}) do
     machine =
     case hd(machine.stack) do
-      false ->
-        %Machine{machine| ip: machine.ip + offset}
-      _ ->
-        %Machine{machine| stack: tl(machine.stack), ip: machine.ip + 1}
+      false -> %Machine{machine| ip: machine.ip + offset}
+      _ -> %Machine{machine| stack: tl(machine.stack), ip: machine.ip + 1}
     end
     _execute(get_instruction(machine), machine)
   end
@@ -154,15 +151,14 @@ defmodule Predicator.Evaluator do
   defp _execute(["jtrue"|[offset|_]], machine=%Machine{}) do
     machine =
     case hd(machine.stack) do
-      true ->
-        %Machine{machine| ip: machine.ip + offset}
-      _ ->
-        %Machine{machine| stack: tl(machine.stack), ip: machine.ip + 1}
+      true -> %Machine{machine| ip: machine.ip + offset}
+      _ -> %Machine{machine| stack: tl(machine.stack), ip: machine.ip + 1}
     end
     _execute(get_instruction(machine), machine)
   end
 
-  defp _execute([non_recognized_predicate|_], machine=%Machine{}), do: instruction_error(machine, non_recognized_predicate)
+  defp _execute([non_recognized_predicate|_], machine=%Machine{}),
+    do: instruction_error(machine, non_recognized_predicate)
 
   defp get_instruction(machine=%Machine{}) do
     case machine.ip < Enum.count(machine.instructions) do
