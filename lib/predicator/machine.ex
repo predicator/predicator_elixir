@@ -6,13 +6,15 @@ defmodule Predicator.Machine do
     instructions: [],
     stack: [],
     ip: 0,
-    context_struct: nil
+    context_struct: nil,
+    opts: []
   ]
 
   @type t :: %__MODULE__{
     instructions: [] | [...],
     stack: [] | [...],
     ip: non_neg_integer(),
-    context_struct: struct() | map()
+    context_struct: struct() | map(),
+    opts: [{atom, atom}, ...]
   }
 end

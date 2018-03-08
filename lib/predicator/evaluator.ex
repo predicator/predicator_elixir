@@ -1,27 +1,40 @@
 defmodule Predicator.Evaluator do
+  @moduledoc """
+  Evaluator module
+  """
   alias Predicator.Machine
   alias Predicator.{
     InstructionError,
     ValueError,
   }
 
-  @doc """
-  execute/2 takes an instruction set and context struct
+  @doc ~S"""
+  Execute will evaluate a predicator instruction set.
 
-  Example instructions sets:
+  If your context struct is using string_keyed map then you will need to pass in the
+  `[map_type: :string]` options to the execute function to evaluate.
 
-    iex> execute([["lit", true]])
-    true
+  ### Examples:
 
-    iex> Predicator.Evaluator.execute([["load", "age"], ["lit", 18], ["compare", "GT"]], %{age: 19})
-    true
+      iex> Predicator.Evaluator.execute([["lit", true]])
+      true
 
-    iex> Predicator.Evaluator.execute([["load", "name"], ["lit", "jrichocean"], ["compare", "EQ"]], %{age: 19})
-    {:error, %Predicator.ValueError{error: "Non valid load value to evaluate", instruction_pointer: 0, instructions: [["load", "name"], ["lit", "jrichocean"], ["compare", "EQ"]], stack: []}}
+      iex> Predicator.Evaluator.execute([["lit", 2], ["lit", 3], ["compare", "LT"]])
+      true
+
+      iex> Predicator.Evaluator.execute([["load", "age"], ["lit", 18], ["compare", "GT"]], %{age: 19})
+      true
+
+      iex> Predicator.Evaluator.execute([["load", "name"], ["lit", "jrichocean"], ["compare", "EQ"]], %{age: 19})
+      {:error, %Predicator.ValueError{error: "Non valid load value to evaluate", instruction_pointer: 0, instructions: [["load", "name"], ["lit", "jrichocean"], ["compare", "EQ"]], stack: [], opts: [map_type: :atom]}}
+
+      iex> Predicator.Evaluator.execute([["load", "age"], ["lit", 18], ["compare", "GT"]], %{"age" => 19}, [map_type: :string])
+      true
+
   """
   @spec execute(list(), struct()|map()) :: boolean() | {:error, InstructionError.t()|ValueError.t()}
-  def execute(inst, context_struct \\ %{}) do
-    machine = %Machine{instructions: inst, context_struct: context_struct}
+  def execute(inst, context_struct \\ %{}, opts \\ [map_type: :atom]) do
+    machine = %Machine{instructions: inst, context_struct: context_struct, opts: opts}
     _execute(get_instruction(machine), machine)
   end
 
@@ -51,14 +64,7 @@ defmodule Predicator.Evaluator do
     machine = %Machine{machine| stack: [loaded_val], ip: machine.ip + 1 }
     _execute(get_instruction(machine), machine)
   end
-  defp _execute(["to_bool"|_], machine=%Machine{}) do
-    error = %ValueError{
-      instruction_pointer: machine.ip,
-      instructions: machine.instructions,
-      stack: machine.stack
-    }
-    {:error, error}
-  end
+  defp _execute(["to_bool"|_], machine=%Machine{}), do: value_error(machine)
 
   defp _execute(["compare"|["EQ"|_]], machine=%Machine{stack: [left|[right|rest_of_stack]]}) do
     val = left == right
@@ -116,16 +122,18 @@ defmodule Predicator.Evaluator do
     _execute(get_instruction(machine), machine)
   end
 
+  defp _execute(["load"|[val|_]], machine=%Machine{opts: [map_type: :string]}) do
+    case Map.get(machine.context_struct, val) do
+      nil -> value_error(machine)
+      user_key ->
+        machine = %Machine{ machine | stack: [user_key|machine.stack], ip: machine.ip + 1 }
+        _execute(get_instruction(machine), machine)
+    end
+  end
+
   defp _execute(["load"|[val|_]], machine=%Machine{}) do
-    case Map.get(machine.context_struct, String.to_atom(val)) do
-      nil ->
-        {:error,
-          %ValueError{
-            stack: machine.stack,
-            instructions: machine.instructions,
-            instruction_pointer: machine.ip
-          }
-        }
+    case Map.get(machine.context_struct, String.to_existing_atom(val)) do
+      nil -> value_error(machine)
       user_key ->
         machine = %Machine{ machine | stack: [user_key|machine.stack], ip: machine.ip + 1 }
         _execute(get_instruction(machine), machine)
@@ -154,14 +162,7 @@ defmodule Predicator.Evaluator do
     _execute(get_instruction(machine), machine)
   end
 
-  defp _execute([non_recognized_predicate|_], machine=%Machine{}) do
-    error = %InstructionError{
-      predicate: non_recognized_predicate,
-      instructions: machine.instructions,
-      instruction_pointer: machine.ip,
-    }
-    {:error, error}
-  end
+  defp _execute([non_recognized_predicate|_], machine=%Machine{}), do: instruction_error(machine, non_recognized_predicate)
 
   defp get_instruction(machine=%Machine{}) do
     case machine.ip < Enum.count(machine.instructions) do
@@ -169,4 +170,25 @@ defmodule Predicator.Evaluator do
       _ -> nil
     end
   end
+
+  defp value_error(machine=%Machine{}) do
+    {:error, %ValueError{
+        stack: machine.stack,
+        instructions: machine.instructions,
+        instruction_pointer: machine.ip,
+        opts: machine.opts
+      }
+    }
+  end
+
+  defp instruction_error(machine=%Machine{}, predicate) do
+    {:error, %InstructionError{
+      predicate: predicate,
+      instructions: machine.instructions,
+      instruction_pointer: machine.ip,
+      opts: machine.opts
+      }
+    }
+  end
+
 end
