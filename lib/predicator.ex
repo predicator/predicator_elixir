@@ -2,6 +2,7 @@ defmodule Predicator do
   @moduledoc """
   Documentation for Predicator.
   """
+  alias Predicator.Evaluator
 
   @lexer :predicator_lexer
   @parser :predicator_parser
@@ -48,8 +49,13 @@ defmodule Predicator do
   def leex_and_parse(str) do
     with {:ok, tokens, _} <- leex_string(str),
          {:ok, predicate} <- parse_lexed(tokens),
-        do: predicate
+      do: predicate
   end
 
+  @doc """
+  eval/3 takes a predicate set, a context struct and options
+  """
+  def eval(inst, context_struct \\ %{}, opts \\ [map_type: :atom])
+  def eval(inst, context_struct, opts), do: Evaluator.execute(inst, context_struct, opts)
 
 end
