@@ -30,7 +30,7 @@ defmodule Predicator do
     iex> parse_lexed([{:load, 1, :apple}, {:comparator, 1, :GT}, {:lit, 1, 5532}])
     {:ok, [[:load, :apple], [:lit, 5532], [:comparator, :GT]]}
   """
-  @spec parse_lexed({:ok, list, any}) :: {:ok|:error, list|tuple}
+  @spec parse_lexed(list) :: {:ok|:error, list|tuple}
   def parse_lexed({_, token, _}), do: @parser.parse(token)
   def parse_lexed(token) when is_list(token), do: @parser.parse(token)
 
@@ -45,7 +45,7 @@ defmodule Predicator do
     iex> leex_and_parse('532 == 532')
     [[:lit, 532], [:lit, 532], [:comparator, :EQ]]
   """
-  @spec leex_and_parse(String.t) :: list|{:error, any()}
+  @spec leex_and_parse(String.t) :: list|{:error, any(), non_neg_integer}
   def leex_and_parse(str) do
     with {:ok, tokens, _} <- leex_string(str),
          {:ok, predicate} <- parse_lexed(tokens),
