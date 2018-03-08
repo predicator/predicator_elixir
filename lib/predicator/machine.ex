@@ -1,6 +1,9 @@
 defmodule Predicator.Machine do
   @moduledoc """
   A Machine Struct is comprised of the instructions set, the current stack, the instruction pointer and the context struct.
+
+    iex>%Predicator.Machine{}
+    %Predicator.Machine{instructions: [], stack: [], ip: 0, context_struct: nil, opts: []}
   """
   defstruct [
     instructions: [],

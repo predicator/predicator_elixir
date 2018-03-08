@@ -1,7 +1,7 @@
 defmodule Predicator.Mixfile do
   use Mix.Project
 
-  def project do
+  def project() do
     [
       app: :predicator,
       version: "0.3.0",

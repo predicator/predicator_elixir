@@ -1,11 +1,11 @@
 defmodule Predicator.Evaluator do
   @moduledoc """
-  Evaluator module
+  Evaluator Module
   """
-  alias Predicator.Machine
   alias Predicator.{
-    InstructionError,
+    Machine,
     ValueError,
+    InstructionError,
   }
 
   @doc ~S"""
