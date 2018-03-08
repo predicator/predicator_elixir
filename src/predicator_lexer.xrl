@@ -25,7 +25,7 @@ or             : {token, {jtrue, TokenLine, list_to_existing_atom(TokenChars)}}.
 
 {BOOLEAN}      : {token, {lit, TokenLine, list_to_existing_atom(TokenChars)}}.
 {ATOM}         : {token, {load, TokenLine, list_to_atom(TokenChars)}}.
-{IDENTIFIER}   : {token, {load, TokenLine, TokenChars}}.
+{IDENTIFIER}   : {token, {load, TokenLine, list_to_atom(TokenChars)}}.
 {INTEGER}      : {token, {lit, TokenLine, list_to_integer(TokenChars)}}.
 
 
