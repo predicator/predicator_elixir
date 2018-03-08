@@ -31,7 +31,3 @@ or             : {token, {jtrue, TokenLine, list_to_existing_atom(TokenChars)}}.
 
 Erlang code.
 
-
-
-% [["load", "age"], ["lit", 21],  ["compare", "GT"],   ["jfalse", 4], ["lit", 14], ["lit", 234], ["compare", "LT"]]
-% [[:load, 'this'], [:lit, true], [:comparator, :EQ]], :jfalse,       [[:lit, 14], [:lit, 234],  [:comparator, :LT]]
