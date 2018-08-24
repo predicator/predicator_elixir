@@ -6,7 +6,13 @@ defmodule Predicator.Evaluator do
     Machine,
     ValueError,
     InstructionError,
+    InstructionNotCompleteError,
   }
+
+  @type error_t :: {:error,
+    InstructionError.t()
+    | ValueError.t()
+    | InstructionNotCompleteError.t() }
 
   @doc ~S"""
   Execute will evaluate a predicator instruction set.
@@ -32,12 +38,13 @@ defmodule Predicator.Evaluator do
       true
 
   """
-  @spec execute(list(), struct()|map()) :: boolean() | {:error, InstructionError.t()|ValueError.t()}
+  @spec execute(list(), struct()|map()) :: boolean() | error_t
   def execute(inst, context_struct \\ %{}, opts \\ [map_type: :atom]) do
     machine = %Machine{instructions: inst, context_struct: context_struct, opts: opts}
     _execute(get_instruction(machine), machine)
   end
 
+  defp _execute(nil, m = %Machine{stack: [first|_]}) when not is_boolean(first), do: instruction_not_complete_err(m)
   defp _execute(nil, machine), do: hd(machine.stack)
 
   defp _execute(["array"|[val|_]], machine=%Machine{}) do
@@ -55,6 +62,7 @@ defmodule Predicator.Evaluator do
     _execute(get_instruction(machine), machine)
   end
 
+  # Conversion Predicates
   defp _execute(["to_bool"|_], machine=%Machine{stack: [loaded_val|_]}) when loaded_val in ["true", "false"] do
     machine = %Machine{machine| stack: [String.to_existing_atom(loaded_val)], ip: machine.ip + 1 }
     _execute(get_instruction(machine), machine)
@@ -64,6 +72,32 @@ defmodule Predicator.Evaluator do
     _execute(get_instruction(machine), machine)
   end
   defp _execute(["to_bool"|_], machine=%Machine{}), do: value_error(machine)
+
+  defp _execute(["to_str"|_], machine=%Machine{stack: [loaded_val|_]}) do
+    machine = %Machine{machine| stack: [to_string(loaded_val)], ip: machine.ip + 1 }
+    _execute(get_instruction(machine), machine)
+  end
+
+  defp _execute(["to_int"|_], machine=%Machine{stack: [loaded_val|_]}) when is_binary(loaded_val) do
+    case Integer.parse(loaded_val) do
+      {integer, _} ->
+        machine = %Machine{machine| stack: [integer], ip: machine.ip + 1 }
+        _execute(get_instruction(machine), machine)
+      :error -> value_error(machine)
+    end
+  end
+  defp _execute(["to_int"|_], machine=%Machine{stack: [loaded_val|_]}) when is_integer(loaded_val) do
+    m = %Machine{machine| stack: [loaded_val], ip: machine.ip + 1 }
+    _execute(get_instruction(m), m)
+  end
+
+  defp _execute(
+    ["to_date"|_],
+    machine=%Machine{stack: [<<year::bytes-size(4), "-", month::bytes-size(2), "-", day::bytes-size(2), _::binary>>|_]}
+  ) do
+    machine = %Machine{machine| stack: [%Date{year: year, month: month, day: day}], ip: machine.ip + 1 }
+    _execute(get_instruction(machine), machine)
+  end
 
   defp _execute(["compare"|["EQ"|_]], machine=%Machine{stack: [left|[right|rest_of_stack]]}) do
     val = left == right
@@ -91,8 +125,10 @@ defmodule Predicator.Evaluator do
     _execute(get_instruction(machine), machine)
   end
   defp _execute(["compare"|["NOTIN"|_]], machine) do
-    machine = %Machine{ machine| stack: [false| machine.stack] }
-    _execute(get_instruction(machine), machine)
+    machine =
+      %Machine{ machine| stack: [false| machine.stack] }
+      |> get_instruction()
+      |> _execute(machine)
   end
 
   defp _execute(["compare"|["GT"|_]], machine=%Machine{stack: [second|[first|_rest_of_stack]]}) do
@@ -180,6 +216,16 @@ defmodule Predicator.Evaluator do
   defp instruction_error(machine=%Machine{}, predicate) do
     {:error, %InstructionError{
       predicate: predicate,
+      instructions: machine.instructions,
+      instruction_pointer: machine.ip,
+      opts: machine.opts
+      }
+    }
+  end
+
+  def instruction_not_complete_err(machine=%Machine{}) do
+    {:error, %InstructionNotCompleteError{
+      stack: machine.stack,
       instructions: machine.instructions,
       instruction_pointer: machine.ip,
       opts: machine.opts

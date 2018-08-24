@@ -1,6 +1,8 @@
 defmodule Predicator do
   @moduledoc """
   Documentation for Predicator.
+
+  Lexer and Parser currently only compatible with 0.4.0 predicate syntax
   """
   alias Predicator.Evaluator
 
@@ -8,6 +10,7 @@ defmodule Predicator do
   @parser :predicator_parser
 
   @doc """
+  Currently only compatible with 0.4.0 predicate syntax
   leex_string/1 takes string or charlist and returns a lexed tuple for parsing.
 
     iex> leex_string('10 > 5')
@@ -22,6 +25,7 @@ defmodule Predicator do
 
 
   @doc """
+  Currently only compatible with 0.4.0 predicate syntax
   parse_lexed/1 takes a lexed tuple or just the token from the tuple and returns a predicate.
 
     iex> parse_lexed({:ok, [{:load, 1, :apple}, {:comparator, 1, :GT}, {:lit, 1, 5532}], 1})
@@ -36,6 +40,7 @@ defmodule Predicator do
 
 
   @doc """
+  Currently only compatible with 0.4.0 predicate syntax
   leex_and_parse/1 takes a string or charlist and does all lexing and parsing then
   returns the predicate.
 
