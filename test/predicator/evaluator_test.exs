@@ -1,6 +1,4 @@
-defmodule TestUser do
-  defstruct [name: "Joshua", age: 29, metalhead: "true", is_superhero: "falsse"]
-end
+defmodule TestUser, do: defstruct [name: "Joshua", string_age: "29", age: 29, metalhead: "true", is_superhero: "falsse"]
 
 defmodule Predicator.EvaluatorTest do
   use ExUnit.Case
@@ -8,24 +6,19 @@ defmodule Predicator.EvaluatorTest do
   doctest Predicator.Evaluator
 
   describe "execute/1" do
-    test "execute/1 returns true" do
+    test "returns true" do
       inst = [["lit", true]]
       assert execute(inst) == true
     end
 
-    test "execute/1 returns false" do
+    test "returns false" do
       inst = [["lit", false]]
       assert execute(inst) == false
     end
 
-    test "execute/1 returns not true" do
+    test "returns not true" do
       inst = [["lit", true], ["not"]]
       assert execute(inst) == false
-    end
-
-    test "execute/1 returns to_bool values" do
-      inst = [["load", "metalhead"], ["to_bool"]]
-      assert execute(inst, %TestUser{}) == true
     end
 
     test "returns not false" do
@@ -33,7 +26,7 @@ defmodule Predicator.EvaluatorTest do
       assert execute(inst) == true
     end
 
-    test "execute/1 returns integer equal integer" do
+    test "returns integer equal integer" do
       inst = [["lit", 1], ["lit", 1], ["compare", "EQ"]]
       assert execute(inst) == true
     end
@@ -58,7 +51,7 @@ defmodule Predicator.EvaluatorTest do
       assert execute(inst) == true
     end
 
-    test "execute/1 returns integer not equal to false" do
+    test "returns integer not equal to false" do
       inst = [["lit", 1], ["lit", nil], ["compare", "EQ"]]
       assert execute(inst) == false
     end
@@ -143,6 +136,36 @@ defmodule Predicator.EvaluatorTest do
 
     test "returns variable less_than integer" do
       inst = [["load", "age"], ["lit", 30], ["compare", "LT"]]
+      assert execute(inst, %TestUser{}) == true
+    end
+
+    test "returns to_bool values" do
+      inst = [["load", "metalhead"], ["to_bool"]]
+      assert execute(inst, %TestUser{}) == true
+    end
+
+    test "refutes binary being able to be coerced into to_bool value" do
+      inst = [["load", "name"], ["to_bool"]]
+      refute execute(inst, %TestUser{}) == true
+    end
+
+    test "returns to_int coercion from literal" do
+      inst = [
+        ["load", "string_age"],
+        ["to_int"],
+        ["lit", 29],
+        ["compare", "EQ"]
+      ]
+      assert execute(inst, %TestUser{}) == true
+    end
+
+    test "returns to_int coercion from load_val" do
+      inst = [
+        ["load", "string_age"],
+        ["to_int"],
+        ["load", "age"],
+        ["compare", "EQ"]
+      ]
       assert execute(inst, %TestUser{}) == true
     end
   end
