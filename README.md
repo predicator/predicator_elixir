@@ -12,7 +12,7 @@ The package can be installed by:
 
   ```elixir
   def deps do
-    [{:predicator, "~> 0.3"}]
+    [{:predicator, "~> 0.4.0"}]
   end
   ```
 
