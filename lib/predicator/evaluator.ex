@@ -6,7 +6,13 @@ defmodule Predicator.Evaluator do
     Machine,
     ValueError,
     InstructionError,
+    InstructionNotCompleteError,
   }
+
+  @type error_t :: {:error,
+    InstructionError.t()
+    | ValueError.t()
+    | InstructionNotCompleteError.t() }
 
   @doc ~S"""
   Execute will evaluate a predicator instruction set.
@@ -32,13 +38,13 @@ defmodule Predicator.Evaluator do
       true
 
   """
-  @spec execute(list(), struct()|map()) :: boolean() | {:error, InstructionError.t()|ValueError.t()}
+  @spec execute(list(), struct()|map()) :: boolean() | error_t
   def execute(inst, context_struct \\ %{}, opts \\ [map_type: :atom]) do
     machine = %Machine{instructions: inst, context_struct: context_struct, opts: opts}
     _execute(get_instruction(machine), machine)
   end
 
-  defp _execute(nil, machine), do: hd(machine.stack)
+  defp _execute(nil, m = %Machine{stack: [first|_]}) when not is_boolean(first), do: instruction_not_complete_err(m)
   defp _execute(nil, machine), do: hd(machine.stack)
 
   defp _execute(["array"|[val|_]], machine=%Machine{}) do
@@ -210,6 +216,16 @@ defmodule Predicator.Evaluator do
   defp instruction_error(machine=%Machine{}, predicate) do
     {:error, %InstructionError{
       predicate: predicate,
+      instructions: machine.instructions,
+      instruction_pointer: machine.ip,
+      opts: machine.opts
+      }
+    }
+  end
+
+  def instruction_not_complete_err(machine=%Machine{}) do
+    {:error, %InstructionNotCompleteError{
+      stack: machine.stack,
       instructions: machine.instructions,
       instruction_pointer: machine.ip,
       opts: machine.opts

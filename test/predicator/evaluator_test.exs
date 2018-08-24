@@ -5,6 +5,8 @@ defmodule Predicator.EvaluatorTest do
   import Predicator.Evaluator
   doctest Predicator.Evaluator
 
+
+
   describe "execute/1" do
     test "returns true" do
       inst = [["lit", true]]
@@ -110,20 +112,8 @@ defmodule Predicator.EvaluatorTest do
   end
 
 
-  describe "execute/2" do
-    test "returns to_bool error tuple" do
-      inst2 = [["load", "is_superhero"], ["to_bool"]]
-      assert execute(inst2, %TestUser{}) ==
-      {:error, %Predicator.ValueError{
-          error: "Non valid load value to evaluate",
-          instruction_pointer: 1,
-          instructions: [["load", "is_superhero"], ["to_bool"]],
-          stack: ["falsse"],
-          opts: [map_type: :atom]
-        }
-      }
-    end
 
+  describe "execute/2" do
     test "returns variable equal integer" do
       inst = [["load", "age"], ["lit", 29], ["compare", "EQ"]]
       assert execute(inst, %TestUser{}) == true
@@ -144,9 +134,22 @@ defmodule Predicator.EvaluatorTest do
       assert execute(inst, %TestUser{}) == true
     end
 
-    test "refutes binary being able to be coerced into to_bool value" do
+    test "refutes binary being coerced into to_bool value" do
       inst = [["load", "name"], ["to_bool"]]
       refute execute(inst, %TestUser{}) == true
+    end
+
+    test "returns to_bool error tuple" do
+      inst2 = [["load", "is_superhero"], ["to_bool"]]
+      assert execute(inst2, %TestUser{}) ==
+        {:error, %Predicator.ValueError{
+            error: "Non valid load value to evaluate",
+            instruction_pointer: 1,
+            instructions: [["load", "is_superhero"], ["to_bool"]],
+            stack: ["falsse"],
+            opts: [map_type: :atom]
+          }
+        }
     end
 
     test "returns to_int coercion from literal" do
@@ -168,7 +171,38 @@ defmodule Predicator.EvaluatorTest do
       ]
       assert execute(inst, %TestUser{}) == true
     end
+
+    test "returns to_string coercion from load_val" do
+      inst = [
+        ["load", "age"],
+        ["to_str"],
+        ["load", "string_age"],
+        ["compare", "EQ"]
+      ]
+      assert execute(inst, %TestUser{}) == true
+    end
+
+    test "returns to_string coercion from lit_val" do
+      inst = [
+        ["lit", 29],
+        ["to_str"],
+        ["load", "string_age"],
+        ["compare", "EQ"]
+      ]
+      assert execute(inst, %TestUser{}) == true
+    end
+
+    test "returns InstructionNotCompleteError when coercion not followed by eval instuction" do
+      inst1 = [["lit", 29],["to_str"]] |> execute(%TestUser{})
+      inst2 = [["lit", "29"],["to_int"]] |> execute(%TestUser{})
+      inst3 = [["lit", true],["to_bool"]] |> execute(%TestUser{})
+
+      assert inst1 = {:error, %Predicator.InstructionNotCompleteError{}}
+      assert inst2 = {:error, %Predicator.InstructionNotCompleteError{}}
+      assert inst3 = {:error, %Predicator.InstructionNotCompleteError{}}
+    end
   end
+
 
 
   describe "execute/3" do
