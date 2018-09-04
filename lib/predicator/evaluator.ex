@@ -32,14 +32,14 @@ defmodule Predicator.Evaluator do
       true
 
       iex> Predicator.Evaluator.execute([["load", "name"], ["lit", "jrichocean"], ["compare", "EQ"]], %{age: 19})
-      {:error, %Predicator.ValueError{error: "Non valid load value to evaluate", instruction_pointer: 0, instructions: [["load", "name"], ["lit", "jrichocean"], ["compare", "EQ"]], stack: [], opts: [map_type: :atom]}}
+      {:error, %Predicator.ValueError{error: "Non valid load value to evaluate", instruction_pointer: 0, instructions: [["load", "name"], ["lit", "jrichocean"], ["compare", "EQ"]], stack: [], opts: [map_type: :atom, nil_values: ["", nil]]}}
 
       iex> Predicator.Evaluator.execute([["load", "age"], ["lit", 18], ["compare", "GT"]], %{"age" => 19}, [map_type: :string])
       true
 
   """
   @spec execute(list(), struct()|map()) :: boolean() | error_t
-  def execute(inst, context_struct \\ %{}, opts \\ [map_type: :atom]) do
+  def execute(inst, context_struct \\ %{}, opts \\ [map_type: :atom, nil_values: ["", nil]]) do
     machine = %Machine{instructions: inst, context_struct: context_struct, opts: opts}
     _execute(get_instruction(machine), machine)
   end
@@ -63,31 +63,35 @@ defmodule Predicator.Evaluator do
   end
 
   # Conversion Predicates
-  defp _execute(["to_bool"|_], machine=%Machine{stack: [loaded_val|_]}) when loaded_val in ["true", "false"] do
-    machine = %Machine{machine| stack: [String.to_existing_atom(loaded_val)], ip: machine.ip + 1 }
+  defp _execute(["to_bool"|_], machine=%Machine{stack: [val|rest_of_stack]}) when val in ["true", "false"] do
+    machine = %Machine{machine| stack: [String.to_existing_atom(val)|rest_of_stack], ip: machine.ip + 1 }
     _execute(get_instruction(machine), machine)
   end
-  defp _execute(["to_bool"|_], machine=%Machine{stack: [loaded_val|_]}) when is_boolean(loaded_val) do
-    machine = %Machine{machine| stack: [loaded_val], ip: machine.ip + 1 }
+  defp _execute(["to_bool"|_], machine=%Machine{stack: [val|rest_of_stack]}) when is_boolean(val) do
+    machine = %Machine{machine| stack: [val|rest_of_stack], ip: machine.ip + 1 }
     _execute(get_instruction(machine), machine)
   end
   defp _execute(["to_bool"|_], machine=%Machine{}), do: value_error(machine)
 
-  defp _execute(["to_str"|_], machine=%Machine{stack: [loaded_val|_]}) do
-    machine = %Machine{machine| stack: [to_string(loaded_val)], ip: machine.ip + 1 }
+  defp _execute(["to_str"|_], machine=%Machine{stack: [val|rest_of_stack]}) when is_nil(val) do
+    machine = %Machine{machine| stack: ["nil"|rest_of_stack], ip: machine.ip + 1 }
+    _execute(get_instruction(machine), machine)
+  end
+  defp _execute(["to_str"|_], machine=%Machine{stack: [val|rest_of_stack]}) do
+    machine = %Machine{machine| stack: [to_string(val)|rest_of_stack], ip: machine.ip + 1 }
     _execute(get_instruction(machine), machine)
   end
 
-  defp _execute(["to_int"|_], machine=%Machine{stack: [loaded_val|_]}) when is_binary(loaded_val) do
-    case Integer.parse(loaded_val) do
+  defp _execute(["to_int"|_], machine=%Machine{stack: [val|rest_of_stack]}) when is_binary(val) do
+    case Integer.parse(val) do
       {integer, _} ->
-        machine = %Machine{machine| stack: [integer], ip: machine.ip + 1 }
+        machine = %Machine{machine| stack: [integer|rest_of_stack], ip: machine.ip + 1 }
         _execute(get_instruction(machine), machine)
       :error -> value_error(machine)
     end
   end
-  defp _execute(["to_int"|_], machine=%Machine{stack: [loaded_val|_]}) when is_integer(loaded_val) do
-    m = %Machine{machine| stack: [loaded_val], ip: machine.ip + 1 }
+  defp _execute(["to_int"|_], machine=%Machine{stack: [val|rest_of_stack]}) when is_integer(val) do
+    m = %Machine{machine| stack: [val|rest_of_stack], ip: machine.ip + 1 }
     _execute(get_instruction(m), m)
   end
 
@@ -95,7 +99,27 @@ defmodule Predicator.Evaluator do
     ["to_date"|_],
     machine=%Machine{stack: [<<year::bytes-size(4), "-", month::bytes-size(2), "-", day::bytes-size(2), _::binary>>|_]}
   ) do
-    machine = %Machine{machine| stack: [%Date{year: year, month: month, day: day}], ip: machine.ip + 1 }
+    machine = %Machine{machine| stack: [%Date{year: year, month: month, day: day}|machine.stack], ip: machine.ip + 1 }
+    _execute(get_instruction(machine), machine)
+  end
+
+  defp _execute(["blank"], machine=%Machine{stack: [val|rest_of_stack], opts: opts}) do
+    machine = case Enum.member?(opts[:nil_values], val) do
+      true ->
+        %Machine{machine| stack: [true|rest_of_stack], ip: machine.ip + 1 }
+      false ->
+        %Machine{machine| stack: [false|rest_of_stack], ip: machine.ip + 1 }
+    end
+    _execute(get_instruction(machine), machine)
+  end
+
+  defp _execute(["present"], machine=%Machine{stack: [val|rest_of_stack], opts: opts}) do
+    machine = case Enum.member?(opts[:nil_values], val) do
+      true ->
+        %Machine{machine| stack: [false|rest_of_stack], ip: machine.ip + 1 }
+      false ->
+        %Machine{machine| stack: [true|rest_of_stack], ip: machine.ip + 1 }
+    end
     _execute(get_instruction(machine), machine)
   end
 
@@ -158,17 +182,16 @@ defmodule Predicator.Evaluator do
   end
 
   defp _execute(["load"|[val|_]], machine=%Machine{opts: [map_type: :string]}) do
-    case Map.get(machine.context_struct, val) do
-      nil -> value_error(machine)
+    case Map.get(machine.context_struct, val, :nokey) do
+      :nokey -> value_error(machine)
       user_key ->
         machine = %Machine{ machine | stack: [user_key|machine.stack], ip: machine.ip + 1 }
         _execute(get_instruction(machine), machine)
     end
   end
-
   defp _execute(["load"|[val|_]], machine=%Machine{}) do
-    case Map.get(machine.context_struct, String.to_existing_atom(val)) do
-      nil -> value_error(machine)
+    case Map.get(machine.context_struct, String.to_existing_atom(val), :nokey) do
+      :nokey -> value_error(machine)
       user_key ->
         machine = %Machine{ machine | stack: [user_key|machine.stack], ip: machine.ip + 1 }
         _execute(get_instruction(machine), machine)
@@ -198,7 +221,8 @@ defmodule Predicator.Evaluator do
 
   defp get_instruction(machine=%Machine{}) do
     case machine.ip < Enum.count(machine.instructions) do
-      true -> Enum.at(machine.instructions, machine.ip)
+      true ->
+        Enum.at(machine.instructions, machine.ip)
       _ -> nil
     end
   end
