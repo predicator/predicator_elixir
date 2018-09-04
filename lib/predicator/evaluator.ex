@@ -73,6 +73,10 @@ defmodule Predicator.Evaluator do
   end
   defp _execute(["to_bool"|_], machine=%Machine{}), do: value_error(machine)
 
+  defp _execute(["to_str"|_], machine=%Machine{stack: [val|rest_of_stack]}) when is_nil(val) do
+    machine = %Machine{machine| stack: ["nil"|rest_of_stack], ip: machine.ip + 1 }
+    _execute(get_instruction(machine), machine)
+  end
   defp _execute(["to_str"|_], machine=%Machine{stack: [val|rest_of_stack]}) do
     machine = %Machine{machine| stack: [to_string(val)|rest_of_stack], ip: machine.ip + 1 }
     _execute(get_instruction(machine), machine)
