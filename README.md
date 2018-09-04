@@ -1,7 +1,5 @@
 # Predicator
 
-_Currently has working Evaluator for Predicator instructions & limited lexing and parsing_
-
 [predicator_elixir](https://hexdocs.pm/predicator) is a predicate evaluator for compiled rules from the [predicator](https://github.com/predicator/predicator) ruby gem
 
 ### Installation
@@ -12,7 +10,7 @@ The package can be installed by:
 
   ```elixir
   def deps do
-    [{:predicator, "~> 0.4.0"}]
+    [{:predicator, "~> 0.5"}]
   end
   ```
 
@@ -21,12 +19,13 @@ The package can be installed by:
   ```elixir
   def deps do
     [
-      {:predicator, "~> 0.3"},
-      {:predicator_ecto, "~> 0.1"},
+      {:predicator, "~> 0.5"},
+      {:predicator_ecto, ">= 0.0.0"},
     ]
   end
   ```
 
 ### Using
 
+_Currently has working Evaluator for Predicator instructions & limited lexing and parsing_
 
