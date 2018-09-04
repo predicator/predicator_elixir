@@ -18,6 +18,6 @@ defmodule Predicator.Machine do
     stack: [] | [...],
     ip: non_neg_integer(),
     context_struct: struct() | map(),
-    opts: [{atom, atom}, ...]
+    opts: [{atom, atom}, ...] | [{atom, [...]}, ...]
   }
 end
