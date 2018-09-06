@@ -1,4 +1,3 @@
-
 defmodule Predicator.EvaluatorOperation.GreaterThanTest do
   use ExUnit.Case
   import Predicator.Evaluator
