@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v0.4.0
+## v0.6.0
   * Updates & New
     * Adds 3 new evaluatable predicates for `to_date`, `date_ago`, and `date_from_now`
 
