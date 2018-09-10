@@ -21,7 +21,7 @@ defmodule Predicator.ValueError do
     opts: nil
   ]
 
-  @spec value_error(Predicator.Machine.t) :: t
+  @spec value_error(Predicator.Machine.t) :: {:error, t}
   def value_error(machine=%Predicator.Machine{}) do
     {:error, %__MODULE__{
         stack: machine.stack,

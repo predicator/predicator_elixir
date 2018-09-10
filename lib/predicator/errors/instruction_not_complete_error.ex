@@ -21,7 +21,7 @@ defmodule Predicator.InstructionNotCompleteError do
     opts: nil
   ]
 
-  @spec inst_not_complete_error(Predicator.Machine.t) :: t
+  @spec inst_not_complete_error(Predicator.Machine.t) :: {:error, t}
   def inst_not_complete_error(machine=%Predicator.Machine{}) do
     {:error, %__MODULE__{
       stack: machine.stack,

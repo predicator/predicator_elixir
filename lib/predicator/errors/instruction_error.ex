@@ -23,11 +23,11 @@ defmodule Predicator.InstructionError do
     opts: nil
   ]
 
-  @spec instruction_error(Predicator.Machine.t, term) :: t
+  @spec instruction_error(Predicator.Machine.t, term) :: {:error, t}
   def instruction_error(machine=%Predicator.Machine{}, predicate) do
     {:error, %__MODULE__{
-      predicate: predicate,
       instructions: machine.instructions,
+      predicate: predicate,
       stack: machine.stack,
       instruction_pointer: machine.ip,
       opts: machine.opts
