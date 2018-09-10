@@ -2,7 +2,6 @@
 defmodule Predicator.EvaluatorOperation.PresentTest do
   use ExUnit.Case
   import Predicator.Evaluator
-  alias __MODULE__
 
   defmodule TestUser do
     defstruct [

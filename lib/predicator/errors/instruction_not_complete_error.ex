@@ -20,4 +20,15 @@ defmodule Predicator.InstructionNotCompleteError do
     instruction_pointer: nil,
     opts: nil
   ]
+
+  @spec inst_not_complete_error(Predicator.Machine.t) :: {:error, t}
+  def inst_not_complete_error(machine=%Predicator.Machine{}) do
+    {:error, %__MODULE__{
+      stack: machine.stack,
+      instructions: machine.instructions,
+      instruction_pointer: machine.ip,
+      opts: machine.opts
+      }
+    }
+  end
 end

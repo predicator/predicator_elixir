@@ -4,7 +4,6 @@ defmodule Predicator.EvaluatorOperation.BlankTest do
   use ExUnit.Case
   import Predicator.Evaluator
 
-  alias __MODULE__
   defmodule TestUser do
     defstruct [
       name: "Joshua",
