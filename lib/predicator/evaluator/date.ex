@@ -13,7 +13,6 @@ defmodule Predicator.Evaluator.Date do
     mach
     |> Predicator.Evaluator._get_instruction()
     |> Predicator.Evaluator._execute(mach)
-    |> IO.inspect
   end
 
   # [["load", "created_at"], ["to_date"], ["lit", 259200], ["date_ago"], ["compare", "LT"]]
