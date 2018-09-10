@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.4.0
+  * Updates & New
+    * Adds 3 new evaluatable predicates for `to_date`, `date_ago`, and `date_from_now`
+
 ## v0.5.0
   * Updates
     * Evaluator now reads new coercion instructions `to_int`, `to_str`, & `to_bool`
