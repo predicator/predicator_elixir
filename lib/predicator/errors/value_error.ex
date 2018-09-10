@@ -20,4 +20,15 @@ defmodule Predicator.ValueError do
     instruction_pointer: nil,
     opts: nil
   ]
+
+  @spec value_error(Predicator.Machine.t) :: t
+  def value_error(machine=%Predicator.Machine{}) do
+    {:error, %__MODULE__{
+        stack: machine.stack,
+        instructions: machine.instructions,
+        instruction_pointer: machine.ip,
+        opts: machine.opts
+      }
+    }
+  end
 end

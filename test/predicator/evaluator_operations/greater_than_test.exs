@@ -1,7 +1,6 @@
 defmodule Predicator.EvaluatorOperation.GreaterThanTest do
   use ExUnit.Case
   import Predicator.Evaluator
-  alias __MODULE__
 
   defmodule TestUser, do: defstruct [string_age: "29", age: 29]
 

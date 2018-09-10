@@ -3,7 +3,6 @@ defmodule Predicator.EvaluatorTest do
   import Predicator.Evaluator
   doctest Predicator.Evaluator
 
-  alias __MODULE__
   defmodule TestUser do
     defstruct [
       name: "Joshua",
@@ -67,13 +66,15 @@ defmodule Predicator.EvaluatorTest do
 
   describe "Errors" do
     test "InstructionNotCompleteError when coercion not followed by eval instuction" do
-      inst1 = [["lit", 29],["to_str"]] |> execute(%TestUser{})
-      inst2 = [["lit", "29"],["to_int"]] |> execute(%TestUser{})
-      inst3 = [["lit", true],["to_bool"]] |> execute(%TestUser{})
+      inst1 = execute([["lit", 29],["to_str"]], %TestUser{})
+      inst2 = execute([["lit", "29"],["to_int"]], %TestUser{})
+      inst3 = execute([["lit", true],["to_bool"]], %TestUser{})
+      inst4 = execute([["lit", "2010-01-31"],["to_date"]], %TestUser{})
 
       assert inst1 = {:error, %Predicator.InstructionNotCompleteError{}}
       assert inst2 = {:error, %Predicator.InstructionNotCompleteError{}}
       assert inst3 = {:error, %Predicator.InstructionNotCompleteError{}}
+      assert inst4 = {:error, %Predicator.InstructionNotCompleteError{}}
     end
 
     test "InstructionError on invalid predicate op" do
@@ -83,6 +84,7 @@ defmodule Predicator.EvaluatorTest do
         instructions: [["blabla", 2345], ["something", 342]],
         predicate: "blabla",
         instruction_pointer: 0,
+        stack: [],
         opts: [map_type: :atom, nil_values: ["", nil]]
       }}
     end
@@ -94,6 +96,7 @@ defmodule Predicator.EvaluatorTest do
         instructions: [["lit", 3], ["blabla", 2345]],
         predicate: "blabla",
         instruction_pointer: 1,
+        stack: [3],
         opts: [map_type: :atom, nil_values: ["", nil]]
       }}
     end

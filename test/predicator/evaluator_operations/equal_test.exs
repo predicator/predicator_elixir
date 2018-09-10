@@ -2,7 +2,6 @@ defmodule Predicator.EvaluatorOperation.EqualTest do
   use ExUnit.Case
   import Predicator.Evaluator
 
-  alias __MODULE__
   defmodule TestUser, do: defstruct [age: 29]
 
   describe "[\"EQ\"] operation" do

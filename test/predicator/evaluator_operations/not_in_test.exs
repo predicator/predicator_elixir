@@ -3,7 +3,6 @@ defmodule Predicator.EvaluatorOperation.NotInTest do
   use ExUnit.Case
   import Predicator.Evaluator
 
-  alias __MODULE__
   defmodule TestUser, do: defstruct [age: 30, state: "WA"]
 
   describe "[\"NOTIN\"] operation" do

@@ -1,7 +1,11 @@
 defmodule Predicator.Evaluator do
   @moduledoc "Evaluator Module"
   alias Predicator.Machine
-  import Predicator.Errors
+  import Predicator.{
+    ValueError,
+    InstructionError,
+    InstructionNotCompleteError,
+  }
 
   @type error_t :: {:error,
     InstructionError.t()
@@ -38,7 +42,8 @@ defmodule Predicator.Evaluator do
     _execute(_get_instruction(machine), machine)
   end
 
-  def _execute(nil, m = %Machine{stack: [first|_]}) when not is_boolean(first), do: _inst_not_complete_error(m)
+  def _execute(nil, m = %Machine{stack: [first|_]})
+    when not is_boolean(first), do: inst_not_complete_error(m)
   def _execute(nil, machine), do: hd(machine.stack)
 
   def _execute(["array"|[val|_]], machine=%Machine{}) do
@@ -65,7 +70,7 @@ defmodule Predicator.Evaluator do
     machine = %Machine{machine| stack: [val|rest_of_stack], ip: machine.ip + 1 }
     _execute(_get_instruction(machine), machine)
   end
-  def _execute(["to_bool"|_], machine=%Machine{}), do: _value_error(machine)
+  def _execute(["to_bool"|_], machine=%Machine{}), do: value_error(machine)
 
   def _execute(["to_str"|_], machine=%Machine{stack: [val|rest_of_stack]}) when is_nil(val) do
     machine = %Machine{machine| stack: ["nil"|rest_of_stack], ip: machine.ip + 1 }
@@ -81,7 +86,7 @@ defmodule Predicator.Evaluator do
       {integer, _} ->
         machine = %Machine{machine| stack: [integer|rest_of_stack], ip: machine.ip + 1 }
         _execute(_get_instruction(machine), machine)
-      :error -> _value_error(machine)
+      :error -> value_error(machine)
     end
   end
   def _execute(["to_int"|_], machine=%Machine{stack: [val|rest_of_stack]}) when is_integer(val) do
@@ -172,6 +177,20 @@ defmodule Predicator.Evaluator do
     _execute(_get_instruction(machine), machine)
   end
 
+  def _execute(
+    ["compare"|["BETWEEN"|_]], m=%Machine{stack: [max=%DateTime{}|[min=%DateTime{}|[val=%DateTime{}|rest_of_stack]]]}
+  ) do
+    is_between_eval =
+      with :lt <- DateTime.compare(max, val),
+           :gt <- DateTime.compare(min, val)
+      do
+        true
+      else
+        _ -> false
+      end
+    machine = %Machine{m| stack: [is_between_eval|rest_of_stack], ip: m.ip + 1 }
+    _execute(_get_instruction(machine), machine)
+  end
   def _execute(["compare"|["BETWEEN"|_]], machine=%Machine{stack: [max|[min|[val|rest_of_stack]]]}) do
     res = Enum.member?(min..max, val)
     machine = %Machine{ machine| stack: [res|rest_of_stack], ip: machine.ip + 1 }
@@ -180,7 +199,7 @@ defmodule Predicator.Evaluator do
 
   def _execute(["load"|[val|_]], machine=%Machine{opts: [map_type: :string]}) do
     case Map.get(machine.context_struct, val, :nokey) do
-      :nokey -> _value_error(machine)
+      :nokey -> value_error(machine)
       user_key ->
         machine = %Machine{ machine | stack: [user_key|machine.stack], ip: machine.ip + 1 }
         _execute(_get_instruction(machine), machine)
@@ -188,7 +207,7 @@ defmodule Predicator.Evaluator do
   end
   def _execute(["load"|[val|_]], machine=%Machine{}) do
     case Map.get(machine.context_struct, String.to_existing_atom(val), :nokey) do
-      :nokey -> _value_error(machine)
+      :nokey -> value_error(machine)
       user_key ->
         machine = %Machine{ machine | stack: [user_key|machine.stack], ip: machine.ip + 1 }
         _execute(_get_instruction(machine), machine)
@@ -214,7 +233,7 @@ defmodule Predicator.Evaluator do
   end
 
   def _execute([non_recognized_predicate|_], machine=%Machine{}),
-    do: _instruction_error(machine, non_recognized_predicate)
+    do: instruction_error(machine, non_recognized_predicate)
 
   def _get_instruction(machine=%Machine{}) do
     case machine.ip < Enum.count(machine.instructions) do
