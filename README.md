@@ -10,7 +10,7 @@ The package can be installed by:
 
   ```elixir
   def deps do
-    [{:predicator, "~> 0.5"}]
+    [{:predicator, "~> 0.6"}]
   end
   ```
 
@@ -19,7 +19,7 @@ The package can be installed by:
   ```elixir
   def deps do
     [
-      {:predicator, "~> 0.5"},
+      {:predicator, "~> 0.6"},
       {:predicator_ecto, ">= 0.0.0"},
     ]
   end

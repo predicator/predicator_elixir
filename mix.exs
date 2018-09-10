@@ -4,8 +4,8 @@ defmodule Predicator.Mixfile do
   def project() do
     [
       app: :predicator,
-      version: "0.5.1",
-      elixir: "~> 1.5",
+      version: "0.6.1",
+      elixir: "~> 1.6",
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
       package: package(),
