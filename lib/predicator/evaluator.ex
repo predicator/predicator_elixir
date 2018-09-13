@@ -197,6 +197,18 @@ defmodule Predicator.Evaluator do
     _execute(_get_instruction(machine), machine)
   end
 
+  def _execute(["compare"|["STARTSWITH"|_]], m = %Machine{stack: [match|[stack_val|rest_of_stack]]}) do
+    val = String.starts_with?(stack_val, match)
+    machine = %Machine{m| stack: [val|rest_of_stack], ip: m.ip + 1}
+    _execute(_get_instruction(machine), machine)
+  end
+
+  def _execute(["compare"|["ENDSWITH"|_]], m = %Machine{stack: [end_match|[stack_val|rest_of_stack]]}) do
+    val = String.ends_with?(stack_val, end_match)
+    machine = %Machine{m| stack: [val|rest_of_stack], ip: m.ip + 1}
+    _execute(_get_instruction(machine), machine)
+  end
+
   def _execute(["load"|[val|_]], machine=%Machine{opts: [map_type: :string]}) do
     case Map.get(machine.context_struct, val, :nokey) do
       :nokey -> value_error(machine)
