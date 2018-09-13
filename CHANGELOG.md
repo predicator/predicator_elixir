@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.7.0
+  * New
+    * Adds 2 new comparison predicates for `starts_with` & `ends_with`
+
 ## v0.6.0
   * Updates & New
     * Adds 3 new evaluatable predicates for `to_date`, `date_ago`, and `date_from_now`
