@@ -1,16 +1,18 @@
 defmodule Predicator.Evaluator do
   @moduledoc "Evaluator Module"
-  alias Predicator.Machine
-  import Predicator.{
-    ValueError,
+  alias Predicator.{
+    Machine,
     InstructionError,
     InstructionNotCompleteError,
+    ValueError,
   }
 
+  @doc "Error types returned from Predicator.Evaluator"
   @type error_t :: {:error,
     InstructionError.t()
     | ValueError.t()
     | InstructionNotCompleteError.t() }
+
 
   @doc ~S"""
   Execute will evaluate a predicator instruction set.
@@ -39,59 +41,60 @@ defmodule Predicator.Evaluator do
   @spec execute(list(), struct()|map()) :: boolean() | error_t
   def execute(inst, context_struct \\ %{}, opts \\ [map_type: :atom, nil_values: ["", nil]]) do
     machine = %Machine{instructions: inst, context_struct: context_struct, opts: opts}
-    _execute(_get_instruction(machine), machine)
+    _execute(_next_ip(machine), machine)
   end
 
   def _execute(nil, m = %Machine{stack: [first|_]})
-    when not is_boolean(first), do: inst_not_complete_error(m)
+    when not is_boolean(first), do: InstructionNotCompleteError.inst_not_complete_error(m)
   def _execute(nil, machine), do: hd(machine.stack)
 
   def _execute(["array"|[val|_]], machine=%Machine{}) do
     machine = %Machine{ machine | stack: [val|machine.stack], ip: machine.ip + 1 }
-    _execute(_get_instruction(machine), machine)
+    _execute(_next_ip(machine), machine)
   end
 
   def _execute(["lit"|[val|_]], machine=%Machine{}) do
     machine = %Machine{ machine | stack: [val|machine.stack], ip: machine.ip + 1 }
-    _execute(_get_instruction(machine), machine)
+    _execute(_next_ip(machine), machine)
   end
 
   def _execute(["not"|_], machine=%Machine{stack: [val|_rest_of_stack]}) do
     machine = %Machine{ machine | stack: [!val|machine.stack], ip: machine.ip + 1 }
-    _execute(_get_instruction(machine), machine)
+    _execute(_next_ip(machine), machine)
   end
 
   # Conversion Predicates
   def _execute(["to_bool"|_], machine=%Machine{stack: [val|rest_of_stack]}) when val in ["true", "false"] do
     machine = %Machine{machine| stack: [String.to_existing_atom(val)|rest_of_stack], ip: machine.ip + 1 }
-    _execute(_get_instruction(machine), machine)
+    _execute(_next_ip(machine), machine)
   end
   def _execute(["to_bool"|_], machine=%Machine{stack: [val|rest_of_stack]}) when is_boolean(val) do
     machine = %Machine{machine| stack: [val|rest_of_stack], ip: machine.ip + 1 }
-    _execute(_get_instruction(machine), machine)
+    _execute(_next_ip(machine), machine)
   end
-  def _execute(["to_bool"|_], machine=%Machine{}), do: value_error(machine)
+  def _execute(["to_bool"|_], machine=%Machine{}), do: ValueError.value_error(machine)
 
   def _execute(["to_str"|_], machine=%Machine{stack: [val|rest_of_stack]}) when is_nil(val) do
     machine = %Machine{machine| stack: ["nil"|rest_of_stack], ip: machine.ip + 1 }
-    _execute(_get_instruction(machine), machine)
+    _execute(_next_ip(machine), machine)
   end
   def _execute(["to_str"|_], machine=%Machine{stack: [val|rest_of_stack]}) do
     machine = %Machine{machine| stack: [to_string(val)|rest_of_stack], ip: machine.ip + 1 }
-    _execute(_get_instruction(machine), machine)
+    _execute(_next_ip(machine), machine)
   end
 
   def _execute(["to_int"|_], machine=%Machine{stack: [val|rest_of_stack]}) when is_binary(val) do
     case Integer.parse(val) do
       {integer, _} ->
-        machine = %Machine{machine| stack: [integer|rest_of_stack], ip: machine.ip + 1 }
-        _execute(_get_instruction(machine), machine)
-      :error -> value_error(machine)
+        machine =
+          %Machine{machine| stack: [integer|rest_of_stack], ip: machine.ip + 1 }
+        _execute(_next_ip(machine), machine)
+      :error -> ValueError.value_error(machine)
     end
   end
   def _execute(["to_int"|_], machine=%Machine{stack: [val|rest_of_stack]}) when is_integer(val) do
     m = %Machine{machine| stack: [val|rest_of_stack], ip: machine.ip + 1 }
-    _execute(_get_instruction(m), m)
+    _execute(_next_ip(m), m)
   end
 
 
@@ -112,7 +115,7 @@ defmodule Predicator.Evaluator do
       false ->
         %Machine{machine| stack: [false|rest_of_stack], ip: machine.ip + 1 }
     end
-    _execute(_get_instruction(machine), machine)
+    _execute(_next_ip(machine), machine)
   end
 
   def _execute(["present"], machine=%Machine{stack: [val|rest_of_stack], opts: opts}) do
@@ -122,107 +125,107 @@ defmodule Predicator.Evaluator do
       false ->
         %Machine{machine| stack: [true|rest_of_stack], ip: machine.ip + 1 }
     end
-    _execute(_get_instruction(machine), machine)
+    _execute(_next_ip(machine), machine)
   end
 
   def _execute(["compare"|["EQ"|_]], machine=%Machine{stack: [left|[right|rest_of_stack]]}) do
     val = left == right
     machine = %Machine{ machine | stack: [val|rest_of_stack], ip: machine.ip + 1 }
-    _execute(_get_instruction(machine), machine)
+    _execute(_next_ip(machine), machine)
   end
   def _execute(["compare"|["EQ"|_]], machine) do
     machine = %Machine{ machine| stack: [false| machine.stack] }
-    _execute(_get_instruction(machine), machine)
+    _execute(_next_ip(machine), machine)
   end
 
   def _execute(["compare"|["IN"|_]], machine=%Machine{stack: [left|[right|rest_of_stack]]}) do
     val = Enum.member?(left, right)
     machine = %Machine{ machine | stack: [val|rest_of_stack], ip: machine.ip + 1 }
-    _execute(_get_instruction(machine), machine)
+    _execute(_next_ip(machine), machine)
   end
   def _execute(["compare"|["IN"|_]], machine) do
     machine = %Machine{ machine| stack: [false| machine.stack] }
-    _execute(_get_instruction(machine), machine)
+    _execute(_next_ip(machine), machine)
   end
 
   def _execute(["compare"|["NOTIN"|_]], machine=%Machine{stack: [left|[right|rest_of_stack]]}) do
     val = !Enum.member?(left, right)
     machine = %Machine{ machine | stack: [val|rest_of_stack], ip: machine.ip + 1 }
-    _execute(_get_instruction(machine), machine)
+    _execute(_next_ip(machine), machine)
   end
   def _execute(["compare"|["NOTIN"|_]], machine) do
-    machine =
-      %Machine{ machine| stack: [false| machine.stack] }
-      |> _get_instruction()
-      |> _execute(machine)
+      mach =
+        %Machine{ machine| stack: [false| machine.stack] }
+
+      _execute(_next_ip(mach), mach)
   end
 
   def _execute(["compare"|["GT"|_]], machine=%Machine{stack: [second|[first|_rest_of_stack]]}) do
     val = first > second
     machine = %Machine{ machine | stack: [val|machine.stack], ip: machine.ip + 1 }
-    _execute(_get_instruction(machine), machine)
+    _execute(_next_ip(machine), machine)
   end
   def _execute(["compare"|["GT"|_]], machine) do
     machine = %Machine{ machine| stack: [false| machine.stack] }
-    _execute(_get_instruction(machine), machine)
+    _execute(_next_ip(machine), machine)
   end
 
   def _execute(["compare"|["LT"|_]], machine=%Machine{stack: [second|[first|_rest_of_stack]]}) do
     val = first < second
     machine = %Machine{ machine | stack: [val|machine.stack], ip: machine.ip + 1 }
-    _execute(_get_instruction(machine), machine)
+    _execute(_next_ip(machine), machine)
   end
   def _execute(["compare"|["LT"|_]], machine) do
     machine = %Machine{ machine| stack: [false| machine.stack] }
-    _execute(_get_instruction(machine), machine)
+    _execute(_next_ip(machine), machine)
   end
 
   def _execute(
     ["compare"|["BETWEEN"|_]], m=%Machine{stack: [max=%DateTime{}|[min=%DateTime{}|[val=%DateTime{}|rest_of_stack]]]}
   ) do
     is_between_eval =
-      with :lt <- DateTime.compare(max, val),
-           :gt <- DateTime.compare(min, val)
+      with :gt <- DateTime.compare(max, val),
+           :lt <- DateTime.compare(min, val)
       do
         true
       else
         _ -> false
       end
     machine = %Machine{m| stack: [is_between_eval|rest_of_stack], ip: m.ip + 1 }
-    _execute(_get_instruction(machine), machine)
+    _execute(_next_ip(machine), machine)
   end
   def _execute(["compare"|["BETWEEN"|_]], machine=%Machine{stack: [max|[min|[val|rest_of_stack]]]}) do
     res = Enum.member?(min..max, val)
     machine = %Machine{ machine| stack: [res|rest_of_stack], ip: machine.ip + 1 }
-    _execute(_get_instruction(machine), machine)
+    _execute(_next_ip(machine), machine)
   end
 
   def _execute(["compare"|["STARTSWITH"|_]], m = %Machine{stack: [match|[stack_val|rest_of_stack]]}) do
     val = String.starts_with?(stack_val, match)
     machine = %Machine{m| stack: [val|rest_of_stack], ip: m.ip + 1}
-    _execute(_get_instruction(machine), machine)
+    _execute(_next_ip(machine), machine)
   end
 
   def _execute(["compare"|["ENDSWITH"|_]], m = %Machine{stack: [end_match|[stack_val|rest_of_stack]]}) do
     val = String.ends_with?(stack_val, end_match)
     machine = %Machine{m| stack: [val|rest_of_stack], ip: m.ip + 1}
-    _execute(_get_instruction(machine), machine)
+    _execute(_next_ip(machine), machine)
   end
 
   def _execute(["load"|[val|_]], machine=%Machine{opts: [map_type: :string]}) do
     case Map.get(machine.context_struct, val, :nokey) do
-      :nokey -> value_error(machine)
+      :nokey -> ValueError.value_error(machine)
       user_key ->
         machine = %Machine{ machine | stack: [user_key|machine.stack], ip: machine.ip + 1 }
-        _execute(_get_instruction(machine), machine)
+        _execute(_next_ip(machine), machine)
     end
   end
   def _execute(["load"|[val|_]], machine=%Machine{}) do
     case Map.get(machine.context_struct, String.to_existing_atom(val), :nokey) do
-      :nokey -> value_error(machine)
+      :nokey -> ValueError.value_error(machine)
       user_key ->
         machine = %Machine{ machine | stack: [user_key|machine.stack], ip: machine.ip + 1 }
-        _execute(_get_instruction(machine), machine)
+        _execute(_next_ip(machine), machine)
     end
   end
 
@@ -232,7 +235,7 @@ defmodule Predicator.Evaluator do
       false -> %Machine{machine| ip: machine.ip + offset}
       _ -> %Machine{machine| stack: tl(machine.stack), ip: machine.ip + 1}
     end
-    _execute(_get_instruction(machine), machine)
+    _execute(_next_ip(machine), machine)
   end
 
   def _execute(["jtrue"|[offset|_]], machine=%Machine{}) do
@@ -241,21 +244,17 @@ defmodule Predicator.Evaluator do
       true -> %Machine{machine| ip: machine.ip + offset}
       _ -> %Machine{machine| stack: tl(machine.stack), ip: machine.ip + 1}
     end
-    _execute(_get_instruction(machine), machine)
+    _execute(_next_ip(machine), machine)
   end
 
   def _execute([non_recognized_predicate|_], machine=%Machine{}),
-    do: instruction_error(machine, non_recognized_predicate)
+    do: InstructionError.instruction_error(machine, non_recognized_predicate)
 
-  def _get_instruction(machine=%Machine{}) do
+  def _next_ip(machine=%Machine{}) do
     case machine.ip < Enum.count(machine.instructions) do
-      true ->
-        Enum.at(machine.instructions, machine.ip)
+      true -> Enum.at(machine.instructions, machine.ip)
       _ -> nil
     end
   end
-  # def _get_instruction(machine=%Machine{}) do
-  # REFACTOR
-  # end
 
 end

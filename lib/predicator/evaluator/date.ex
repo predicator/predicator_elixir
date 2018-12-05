@@ -11,7 +11,7 @@ defmodule Predicator.Evaluator.Date do
       %Machine{m| stack: [_convert_date(date)|rest_of_stack], ip: m.ip + 1 }
 
     mach
-    |> Predicator.Evaluator._get_instruction()
+    |> Predicator.Evaluator._next_ip()
     |> Predicator.Evaluator._execute(mach)
   end
 
@@ -24,7 +24,7 @@ defmodule Predicator.Evaluator.Date do
       mach =
         %Machine{m|stack: [datetime|rest_of_stack], ip: m.ip + 1 }
 
-      Predicator.Evaluator._get_instruction(mach)
+      Predicator.Evaluator._next_ip(mach)
       |> Predicator.Evaluator._execute(mach)
     end
   end
@@ -38,9 +38,10 @@ defmodule Predicator.Evaluator.Date do
     mach =
       %Machine{m|stack: [date_from_now|rest_of_stack], ip: m.ip + 1 }
 
-    Predicator.Evaluator._get_instruction(mach)
+    Predicator.Evaluator._next_ip(mach)
     |> Predicator.Evaluator._execute(mach)
   end
+
 
   @compile {:inline, _convert_date: 1}
   def _convert_date(arg) when is_number(arg), do: DateTime.from_unix!(arg)
