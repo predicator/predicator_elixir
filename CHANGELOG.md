@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.7.1
+  * New
+    * Adds `between` instruction for eval on dates
+
 ## v0.7.0
   * New
     * Adds 2 new comparison predicates for `starts_with` & `ends_with`
