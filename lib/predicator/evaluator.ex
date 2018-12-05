@@ -256,8 +256,5 @@ defmodule Predicator.Evaluator do
       _ -> nil
     end
   end
-  # def _next_ip(machine=%Machine{}) do
-  # REFACTOR
-  # end
 
 end

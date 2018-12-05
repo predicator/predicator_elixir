@@ -4,7 +4,7 @@ defmodule Predicator.Mixfile do
   def project() do
     [
       app: :predicator,
-      version: "0.7.0",
+      version: "0.7.1",
       elixir: "~> 1.6",
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
@@ -37,7 +37,7 @@ defmodule Predicator.Mixfile do
 
   defp deps() do
     [
-      {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
+      {:dialyxir, "~> 1.0.0-rc.4", only: [:dev], runtime: false},
       {:ex_doc, "~> 0.19.0", only: :dev},
     ]
   end

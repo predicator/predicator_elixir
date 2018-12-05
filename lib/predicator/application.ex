@@ -4,8 +4,6 @@ defmodule Predicator.Application do
 
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
-    children = []
-    opts = [strategy: :one_for_one, name: Predicator.Supervisor]
-    Supervisor.start_link(children, opts)
+    Supervisor.start_link([], [strategy: :one_for_one, name: Predicator.Supervisor])
   end
 end
