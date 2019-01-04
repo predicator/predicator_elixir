@@ -5,6 +5,7 @@ WHITESPACE   = [\s\t\n\r]
 EQUAL        = (==|=|===|equal)
 LESS_THAN    = (lt|LT|<)
 GREATER_THAN = (gt|GT|>)
+% BETWEEN      = (bt|BTWEEN|BT)
 
 ATOM         = :[a-z_]+
 IDENTIFIER   = [a-z][A-Za-z0-9_]*
@@ -19,6 +20,7 @@ Rules.
 {GREATER_THAN} : {token, {comparator, TokenLine, 'GT'}}.
 {LESS_THAN}    : {token, {comparator, TokenLine, 'LT'}}.
 {EQUAL}        : {token, {comparator, TokenLine, 'EQ'}}.
+% {BETWEEN}      : {token, {comparator, TokenLine, 'BETWEEN'}}.
 
 and            : {token, {jfalse, TokenLine, list_to_existing_atom(TokenChars)}}.
 or             : {token, {jtrue, TokenLine, list_to_existing_atom(TokenChars)}}.
