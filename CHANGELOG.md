@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.7.2
+  * Enhancements
+    * Adds option to leex and parse instruction tokens into atoms or strings with the new `leex_and_parse/2`
+
 ## v0.7.1
   * New
     * Adds `between` instruction for eval on dates
