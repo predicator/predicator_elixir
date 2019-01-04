@@ -20,6 +20,13 @@ predicate -> load comparator load : [unwrap('$1'), unwrap('$3'), unwrap('$2')].
 
 Erlang code.
 
-unwrap({INST,_,V}) ->    [tobin(INST), V].
+unwrap({INST,_,V='GT'}) ->
+  [tobin(INST), tobin(V)];
+unwrap({INST,_,V='LT'}) ->
+  [tobin(INST), tobin(V)];
+unwrap({INST,_,V='EQ'}) ->
+  [tobin(INST), tobin(V)];
+unwrap({INST,_,V}) ->
+  [tobin(INST), V].
 
 tobin(ATOM) -> erlang:atom_to_binary(ATOM, utf8).

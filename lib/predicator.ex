@@ -35,10 +35,10 @@ defmodule Predicator do
   can take optional atom for type of token keys to return. options are `:string_key_inst` & `:atom_key_inst`
 
     iex> parse_lexed({:ok, [{:load, 1, :apple}, {:comparator, 1, :GT}, {:lit, 1, 5532}], 1})
-    {:ok, [["load", :apple], ["lit", 5532], ["comparator", :GT]]}
+    {:ok, [["load", :apple], ["lit", 5532], ["comparator", "GT"]]}
 
     iex> parse_lexed({:ok, [{:load, 1, :apple}, {:comparator, 1, :GT}, {:lit, 1, 5532}], 1}, :string_key_inst)
-    {:ok, [["load", :apple], ["lit", 5532], ["comparator", :GT]]}
+    {:ok, [["load", :apple], ["lit", 5532], ["comparator", "GT"]]}
 
     iex> parse_lexed([{:load, 1, :apple}, {:comparator, 1, :GT}, {:lit, 1, 5532}], :atom_key_inst)
     {:ok, [[:load, :apple], [:lit, 5532], [:comparator, :GT]]}
@@ -58,7 +58,7 @@ defmodule Predicator do
   returns the predicate.
 
     iex> leex_and_parse("13 > 12")
-    [["lit", 13], ["lit", 12], ["comparator", :GT]]
+    [["lit", 13], ["lit", 12], ["comparator", "GT"]]
 
     iex> leex_and_parse('532 == 532', :atom_key_inst)
     [[:lit, 532], [:lit, 532], [:comparator, :EQ]]
