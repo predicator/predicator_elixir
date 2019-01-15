@@ -1,4 +1,3 @@
-
 defmodule Predicator.EvaluatorOperation.NotInTest do
   use ExUnit.Case
   import Predicator.Evaluator

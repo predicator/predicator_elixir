@@ -1,4 +1,3 @@
-
 defmodule Predicator.EvaluatorOperation.ToBoolTest do
   use ExUnit.Case
   import Predicator.Evaluator

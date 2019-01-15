@@ -1,7 +1,6 @@
 defmodule Predicator.EvaluatorOperation.ToDateTest do
   use ExUnit.Case
   import Predicator.Evaluator
-  import Predicator.Evaluator.Date, only: [_execute: 2, _convert_date: 1]
 
   defmodule TestUser, do: defstruct [created_at: "2012-01-31 18:14:13.0", string_age: "29", age: 29]
 

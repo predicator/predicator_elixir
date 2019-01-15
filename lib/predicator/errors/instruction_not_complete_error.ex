@@ -26,7 +26,7 @@ defmodule Predicator.InstructionNotCompleteError do
     {:error, %__MODULE__{
       stack: machine.stack,
       instructions: machine.instructions,
-      instruction_pointer: machine.ip,
+      instruction_pointer: machine.instruction_pointer,
       opts: machine.opts
       }
     }
