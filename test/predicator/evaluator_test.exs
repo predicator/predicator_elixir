@@ -71,10 +71,10 @@ defmodule Predicator.EvaluatorTest do
       inst3 = execute([["lit", true],["to_bool"]], %TestUser{})
       inst4 = execute([["lit", "2010-01-31"],["to_date"]], %TestUser{})
 
-      assert inst1 = {:error, %Predicator.InstructionNotCompleteError{}}
-      assert inst2 = {:error, %Predicator.InstructionNotCompleteError{}}
-      assert inst3 = {:error, %Predicator.InstructionNotCompleteError{}}
-      assert inst4 = {:error, %Predicator.InstructionNotCompleteError{}}
+      assert {:error, %Predicator.InstructionNotCompleteError{}} = inst1
+      assert {:error, %Predicator.InstructionNotCompleteError{}} = inst2
+      assert {:error, %Predicator.InstructionNotCompleteError{}} = inst3
+      assert {:error, %Predicator.InstructionNotCompleteError{}} = inst4
     end
 
     test "InstructionError on invalid predicate op" do

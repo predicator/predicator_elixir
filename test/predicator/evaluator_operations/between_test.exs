@@ -5,6 +5,7 @@ defmodule Predicator.EvaluatorOperation.BetweenTest do
   defmodule TstStruct, do: defstruct [created_at: "2012-12-12"]
 
   describe "[\"BETWEEN\"] operation" do
+    @tag :current
     test "inclusive evaluation of integer BETWEEN integers" do
       inst  = [["lit", 3], ["lit", 1], ["lit", 5], ["compare", "BETWEEN"]]
       inst2 = [["lit", 1], ["lit", 1], ["lit", 5], ["compare", "BETWEEN"]]

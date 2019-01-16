@@ -9,6 +9,7 @@ defmodule Predicator.Mixfile do
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
       package: package(),
+      aliases: aliases(),
       description: description(),
       deps: deps()
     ]
@@ -24,6 +25,10 @@ defmodule Predicator.Mixfile do
       docs: [extras: ["README.md"]],
       links: %{"GitHub" => "https://github.com/predicator/predicator_elixir"}
     ]
+  end
+
+  defp aliases() do
+    [compile: "compile --warnings-as-errors"]
   end
 
   def application() do

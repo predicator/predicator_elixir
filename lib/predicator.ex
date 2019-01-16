@@ -11,37 +11,39 @@ defmodule Predicator do
   @string_parser :string_instruction_parser
 
   @type token_key_t ::
-    :atom_key_inst
-    | :string_key_inst
+  :atom_key_inst
+  | :string_key_inst
+
+  @type predicate :: String.t | charlist
 
   @doc """
   Currently only compatible with 0.4.0 predicate syntax
   leex_string/1 takes string or charlist and returns a lexed tuple for parsing.
 
-    iex> leex_string('10 > 5')
-    {:ok, [{:lit, 1, 10}, {:comparator, 1, :GT}, {:lit, 1, 5}], 1}
+  iex> leex_string('10 > 5')
+  {:ok, [{:lit, 1, 10}, {:comparator, 1, :GT}, {:lit, 1, 5}], 1}
 
-    iex> leex_string("apple > 5532")
-    {:ok, [{:load, 1, :apple}, {:comparator, 1, :GT}, {:lit, 1, 5532}], 1}
+  iex> leex_string("apple > 5532")
+  {:ok, [{:load, 1, :apple}, {:comparator, 1, :GT}, {:lit, 1, 5532}], 1}
   """
-  @spec leex_string(String.t) :: {:ok|:error, list|tuple, non_neg_integer()}
-  def leex_string(str) when is_binary(str), do: @lexer.string(to_charlist(str))
+  @spec leex_string(predicate) :: {:ok|:error, list|tuple, non_neg_integer()}
+  def leex_string(str) when is_binary(str), do: str |> to_charlist |> leex_string
   def leex_string(str) when is_list(str), do: @lexer.string(str)
 
 
   @doc """
   Currently only compatible with 0.4.0 predicate syntax
   parse_lexed/1 takes a leexed token(list or tup) and returns a predicate. It also
-  can take optional atom for type of token keys to return. options are `:string_key_inst` & `:atom_key_inst`
+  can take optional atom for type of token keys to return. options are `:string_ey_inst` & `:atom_key_inst`
 
-    iex> parse_lexed({:ok, [{:load, 1, :apple}, {:comparator, 1, :GT}, {:lit, 1, 5532}], 1})
-    {:ok, [["load", :apple], ["lit", 5532], ["comparator", "GT"]]}
+  iex> parse_lexed({:ok, [{:load, 1, :apple}, {:comparator, 1, :GT}, {:lit, 1, 5532}], 1})
+  {:ok, [["load", :apple], ["lit", 5532], ["comparator", "GT"]]}
 
-    iex> parse_lexed({:ok, [{:load, 1, :apple}, {:comparator, 1, :GT}, {:lit, 1, 5532}], 1}, :string_key_inst)
-    {:ok, [["load", :apple], ["lit", 5532], ["comparator", "GT"]]}
+  iex> parse_lexed({:ok, [{:load, 1, :apple}, {:comparator, 1, :GT}, {:lit, 1, 5532}], 1}, :string_key_inst)
+  {:ok, [["load", :apple], ["lit", 5532], ["comparator", "GT"]]}
 
-    iex> parse_lexed([{:load, 1, :apple}, {:comparator, 1, :GT}, {:lit, 1, 5532}], :atom_key_inst)
-    {:ok, [[:load, :apple], [:lit, 5532], [:comparator, :GT]]}
+  iex> parse_lexed([{:load, 1, :apple}, {:comparator, 1, :GT}, {:lit, 1, 5532}], :atom_key_inst)
+  {:ok, [[:load, :apple], [:lit, 5532], [:comparator, :GT]]}
   """
   @spec parse_lexed(list, token_key_t) :: {:ok|:error, list|tuple}
   def parse_lexed(token, opt \\ :string_key_inst)
@@ -57,23 +59,51 @@ defmodule Predicator do
   leex_and_parse/1 takes a string or charlist and does all lexing and parsing then
   returns the predicate.
 
-    iex> leex_and_parse("13 > 12")
-    [["lit", 13], ["lit", 12], ["comparator", "GT"]]
+  iex> leex_and_parse("13 > 12")
+  [["lit", 13], ["lit", 12], ["comparator", "GT"]]
 
-    iex> leex_and_parse('532 == 532', :atom_key_inst)
-    [[:lit, 532], [:lit, 532], [:comparator, :EQ]]
+  iex> leex_and_parse('532 == 532', :atom_key_inst)
+  [[:lit, 532], [:lit, 532], [:comparator, :EQ]]
   """
   @spec leex_and_parse(String.t) :: list|{:error, any(), non_neg_integer}
   def leex_and_parse(str, token_type \\ :string_key_inst) do
     with {:ok, tokens, _} <- leex_string(str),
-         {:ok, predicate} <- parse_lexed(tokens, token_type),
-      do: predicate
+         {:ok, predicate} <- parse_lexed(tokens, token_type) do
+      predicate
+    end
   end
 
   @doc """
   eval/3 takes a predicate set, a context struct and options
   """
-  def eval(inst, context_struct \\ %{}, opts \\ [map_type: :atom])
-  def eval(inst, context_struct, opts), do: Evaluator.execute(inst, context_struct, opts)
+  def eval(inst, context \\ %{}, opts \\ [map_type: :string])
+  def eval(inst, context, opts), do: Evaluator.execute(inst, context, opts)
 
+  def compile(predicate) do
+    with {:ok, tokens, _} <- leex_string(predicate),
+         {:ok, predicate} <- parse_lexed(tokens, :string_key_inst) do
+      {:ok, predicate}
+    else
+      {:error, _} = err -> err
+      {:error, left, right} -> {:error, {left, right}}
+    end
+  end
+
+  def matches?(predicate, context) when is_list(context) do
+    matches?(predicate, Map.new(context))
+  end
+  def matches?(predicate, context) when is_binary(predicate) or is_list(predicate) do
+    context =
+      context
+      |> Enum.map(fn
+        ({k, v}) when is_atom(k) ->
+          {Atom.to_string(k), v}
+        (other) -> other
+      end)
+      |> Map.new
+
+    with {:ok, predicate} <- compile(predicate) do
+      eval(predicate, context)
+    end
+  end
 end

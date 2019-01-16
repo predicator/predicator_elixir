@@ -1,5 +1,3 @@
-
-
 defmodule Predicator.EvaluatorOperation.BlankTest do
   use ExUnit.Case
   import Predicator.Evaluator
