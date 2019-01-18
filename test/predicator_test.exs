@@ -3,6 +3,8 @@ defmodule PredicatorTest do
   import Predicator
   doctest Predicator
 
+  @moduletag :parsing
+
   describe "BETWEEN" do
     test "not currently supported" do
       assert {:error, _} = Predicator.compile("age between 5 and 10")
@@ -87,6 +89,12 @@ defmodule PredicatorTest do
   describe "STARTSWITH" do
     test "not currently supported" do
       assert {:error, _} = Predicator.compile("name starts with 'stuff'")
+    end
+  end
+
+  describe "OR" do
+    test "not currently supported" do
+      assert {:error, _} = Predicator.compile("true or false")
     end
   end
 end

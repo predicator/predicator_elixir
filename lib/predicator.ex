@@ -93,15 +93,6 @@ defmodule Predicator do
     matches?(predicate, Map.new(context))
   end
   def matches?(predicate, context) when is_binary(predicate) or is_list(predicate) do
-    context =
-      context
-      |> Enum.map(fn
-        ({k, v}) when is_atom(k) ->
-          {Atom.to_string(k), v}
-        (other) -> other
-      end)
-      |> Map.new
-
     with {:ok, predicate} <- compile(predicate) do
       eval(predicate, context)
     end

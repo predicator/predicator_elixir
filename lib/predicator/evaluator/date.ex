@@ -6,16 +6,15 @@ defmodule Predicator.Evaluator.Date do
   }
 
   def _execute(["to_date"|_], machine=%Machine{stack: [date|_rest_of_stack]}) do
-    Machine.put_instruction(machine, _convert_date(date))
+    Machine.replace_stack(machine, _convert_date(date))
   end
 
-  # [["load", "created_at"], ["to_date"], ["lit", 259200], ["date_ago"], ["compare", "LT"]]
   def _execute(["date_ago"|_], machine=%Machine{stack: [date_in_seconds|_rest_of_stack]}) do
     with {:ok, dt_from_stack} <- DateTime.from_unix(date_in_seconds),
          diff_in_seconds <- DateTime.diff(DateTime.utc_now, dt_from_stack),
          {:ok, datetime} <- DateTime.from_unix(diff_in_seconds)
     do
-      Machine.put_instruction(machine, datetime)
+      Machine.replace_stack(machine, datetime)
     end
   end
 
@@ -25,7 +24,7 @@ defmodule Predicator.Evaluator.Date do
       |> DateTime.to_unix
       |> add(seconds_from_now)
 
-    Machine.put_instruction(machine, date_from_now)
+    Machine.replace_stack(machine, date_from_now)
   end
 
 
