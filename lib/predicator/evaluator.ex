@@ -1,6 +1,7 @@
 defmodule Predicator.Evaluator do
   @moduledoc "Evaluator Module"
   alias Predicator.{
+    InstructionNotCompleteError,
     Machine,
   }
 
@@ -9,6 +10,24 @@ defmodule Predicator.Evaluator do
     InstructionError.t()
     | ValueError.t()
     | InstructionNotCompleteError.t() }
+
+  def execute(%Machine{} = machine) do
+    case Machine.step(machine) do
+      %Machine{} = machine ->
+        cond do
+          Machine.complete?(machine) and is_boolean(Machine.peek(machine)) ->
+            Machine.peek(machine)
+
+          Machine.complete?(machine) ->
+            InstructionNotCompleteError.inst_not_complete_error(machine)
+
+          true ->
+            execute(machine)
+        end
+
+      {:error, _reason} = err -> err
+    end
+  end
 
   @doc ~S"""
   Execute will evaluate a predicator instruction set.
@@ -28,24 +47,20 @@ defmodule Predicator.Evaluator do
   true
 
   iex> Predicator.Evaluator.execute([["load", "name"], ["lit", "jrichocean"], ["comparator", "EQ"]], %{age: 19})
-  {:error, %Predicator.ValueError{error: "Non valid load value to evaluate", instruction_pointer: 0, instructions: [["load", "name"], ["lit", "jrichocean"], ["comparator", "EQ"]], stack: [], opts: [map_type: :atom, nil_values: ["", nil]]}}
+  {:error, %Predicator.ValueError{error: "Non valid load value to evaluate", instruction_pointer: 0, instructions: [["load", "name"], ["lit", "jrichocean"], ["comparator", "EQ"]], stack: [], opts: [map_type: :string, nil_values: ["", nil]]}}
 
   iex> Predicator.Evaluator.execute([["load", "age"], ["lit", 18], ["comparator", "GT"]], %{"age" => 19}, [map_type: :string])
   true
 
   """
   @spec execute(list(), struct()|map()) :: boolean() | error_t
-  def execute(inst, context \\ %{}, opts \\ [map_type: :string, nil_values: ["", nil]]) do
+  def execute(inst, context \\ %{}, opts \\ [map_type: :string, nil_values: ["", nil]]) when is_list(inst) do
     inst
-    |> Machine.new(context, opts)
-    |> run
+    |> to_machine(context, opts)
+    |> execute
   end
 
-  defp run(%Machine{stack: [head | _]}) when is_boolean(head), do: head
-  defp run(%Machine{} = machine) do
-    case Machine.step(machine) do
-      %Machine{} = machine -> run(machine)
-      {:error, _reason} = err -> err
-    end
+  def to_machine(instructions, context, opts) do
+    Machine.new(instructions, context, opts)
   end
 end

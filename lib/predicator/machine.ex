@@ -27,8 +27,37 @@ defmodule Predicator.Machine do
     opts: [{atom, atom}, ...] | [{atom, [...]}, ...]
   }
 
-  def new(instructions, context, opts) do
+  def new(instructions, context \\ %{}, opts \\ []) do
+    do_new(instructions, context, opts)
+  end
+
+  defp do_new(instructions, %{__struct__: _} = context, opts) do
+    do_new(instructions, Map.from_struct(context), opts)
+  end
+
+  defp do_new(instructions, context, opts) do
+    context =
+      context
+      |> Enum.map(fn
+        ({k, v}) when is_atom(k) ->
+          {Atom.to_string(k), v}
+        (other) -> other
+      end)
+      |> Map.new
+
     %__MODULE__{instructions: instructions, context: context, opts: opts}
+  end
+
+  def complete?(%__MODULE__{} = machine) do
+    case next_instruction(machine) do
+      nil -> true
+      _ -> false
+    end
+  end
+
+  def peek(%__MODULE__{stack: []}), do: nil
+  def peek(%__MODULE__{stack: [head | _tail]}) do
+    head
   end
 
   def step(%__MODULE__{} = machine) do
@@ -48,14 +77,17 @@ defmodule Predicator.Machine do
   end
 
   def next_instruction(%__MODULE__{} = machine) do
-    case machine.instruction_pointer < Enum.count(machine.instructions) do
-      true -> Enum.at(machine.instructions, machine.instruction_pointer)
-      _ -> nil
+    if machine.instruction_pointer < Enum.count(machine.instructions) do
+      Enum.at(machine.instructions, machine.instruction_pointer)
     end
   end
 
   def increment_pointer(%__MODULE__{} = machine, amount) do
     %__MODULE__{machine | instruction_pointer: machine.instruction_pointer + amount}
+  end
+
+  def replace_stack(%__MODULE__{stack: [_head | tail]} = machine, value) do
+    %__MODULE__{machine | stack: [value | tail], instruction_pointer: machine.instruction_pointer + 1}
   end
 
   def pop_instruction(%__MODULE__{} = machine) do
@@ -95,23 +127,26 @@ defmodule Predicator.Machine do
   end
 
   def accept_instruction(machine = %__MODULE__{stack: [val|_rest_of_stack]}, ["not"|_]) do
-    put_instruction(machine, val)
+    put_instruction(machine, !val)
   end
 
   # Conversion Predicates
-  def accept_instruction(machine = %__MODULE__{stack: [val|_rest_of_stack]}, ["to_bool"|_]) when val in ["true", "false"] do
-    put_instruction(machine, val)
+  def accept_instruction(machine = %__MODULE__{stack: ["false"|_rest_of_stack]}, ["to_bool"|_]) do
+    replace_stack(machine, false)
   end
-  def accept_instruction(machine = %__MODULE__{stack: [val|_rest_of_stack]}, ["to_bool"|_]) when is_boolean(val) do
-    put_instruction(machine, val)
+  def accept_instruction(machine = %__MODULE__{stack: ["true"|_rest_of_stack]}, ["to_bool"|_]) do
+    replace_stack(machine, true)
+  end
+  def accept_instruction(machine = %__MODULE__{stack: [val|_rest_of_stack]} = machine, ["to_bool"|_]) when is_boolean(val) do
+    replace_stack(machine, val)
   end
   def accept_instruction(machine = %__MODULE__{}, ["to_bool"|_]), do: ValueError.value_error(machine)
 
   def accept_instruction(machine = %__MODULE__{stack: [val|_rest_of_stack]}, ["to_str"|_]) when is_nil(val) do
-    put_instruction(machine, val)
+    replace_stack(machine, "nil")
   end
   def accept_instruction(machine = %__MODULE__{stack: [val|_rest_of_stack]}, ["to_str"|_]) do
-    put_instruction(machine, val)
+    replace_stack(machine, to_string(val))
   end
 
   def accept_instruction(machine = %__MODULE__{stack: [val|_rest_of_stack]}, ["to_int"|_]) when is_binary(val) do
@@ -233,7 +268,7 @@ defmodule Predicator.Machine do
       true ->
         increment_pointer(machine, offset)
       _ ->
-        put_instruction(machine, tl(machine.stack))
+        pop_instruction(machine)
     end
   end
 

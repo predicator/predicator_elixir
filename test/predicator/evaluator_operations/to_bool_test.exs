@@ -2,6 +2,8 @@ defmodule Predicator.EvaluatorOperation.ToBoolTest do
   use ExUnit.Case
   import Predicator.Evaluator
 
+  @moduletag :parsed
+
   defmodule TestUser do
     defstruct [
       name: "Joshua",
@@ -35,15 +37,13 @@ defmodule Predicator.EvaluatorOperation.ToBoolTest do
 
     test "returns TOBOOL error tuple" do
       inst = [["load", "is_superhero"], ["to_bool"]]
-      assert execute(inst, %TestUser{}) ==
-        {:error, %Predicator.ValueError{
+      assert {:error, %Predicator.ValueError{
             error: "Non valid load value to evaluate",
             instruction_pointer: 1,
             instructions: [["load", "is_superhero"], ["to_bool"]],
-            stack: ["falsse"],
-            opts: [map_type: :atom, nil_values: ["", nil]]
+            stack: ["falsse"]
           }
-        }
+        } = execute(inst, %TestUser{})
     end
   end
 end

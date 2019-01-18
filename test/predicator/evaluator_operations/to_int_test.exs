@@ -1,7 +1,8 @@
-
 defmodule Predicator.EvaluatorOperation.ToIntTest do
   use ExUnit.Case
   import Predicator.Evaluator
+
+  @moduletag :parsed
 
   defmodule TestUser, do: defstruct [string_age: "29", age: 29]
 
@@ -11,7 +12,7 @@ defmodule Predicator.EvaluatorOperation.ToIntTest do
         ["lit", "29"],
         ["to_int"],
         ["load", "age"],
-        ["compare", "EQ"]
+        ["comparator", "EQ"]
       ]
       assert execute(inst, %TestUser{}) == true
     end
@@ -21,7 +22,7 @@ defmodule Predicator.EvaluatorOperation.ToIntTest do
         ["load", "string_age"],
         ["to_int"],
         ["lit", 29],
-        ["compare", "EQ"]
+        ["comparator", "EQ"]
       ]
       assert execute(inst, %TestUser{}) == true
     end

@@ -2,6 +2,8 @@ defmodule Predicator.EvaluatorOperation.BlankTest do
   use ExUnit.Case
   import Predicator.Evaluator
 
+  @moduletag :parsed
+
   defmodule TestUser do
     defstruct [
       name: "Joshua",
