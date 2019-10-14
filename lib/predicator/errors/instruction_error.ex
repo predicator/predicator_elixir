@@ -29,7 +29,7 @@ defmodule Predicator.InstructionError do
       instructions: machine.instructions,
       predicate: predicate,
       stack: machine.stack,
-      instruction_pointer: machine.ip,
+      instruction_pointer: machine.instruction_pointer,
       opts: machine.opts
       }
     }

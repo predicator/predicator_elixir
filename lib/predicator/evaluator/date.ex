@@ -5,41 +5,26 @@ defmodule Predicator.Evaluator.Date do
     DateConversionError
   }
 
-
-  def _execute(["to_date"|_], m=%Machine{stack: [date|rest_of_stack]}) do
-    mach =
-      %Machine{m| stack: [_convert_date(date)|rest_of_stack], ip: m.ip + 1 }
-
-    mach
-    |> Predicator.Evaluator._next_ip()
-    |> Predicator.Evaluator._execute(mach)
+  def _execute(["to_date"|_], machine=%Machine{stack: [date|_rest_of_stack]}) do
+    Machine.replace_stack(machine, _convert_date(date))
   end
 
-  # [["load", "created_at"], ["to_date"], ["lit", 259200], ["date_ago"], ["compare", "LT"]]
-  def _execute(["date_ago"|_], m=%Machine{stack: [date_in_seconds|rest_of_stack]}) do
+  def _execute(["date_ago"|_], machine=%Machine{stack: [date_in_seconds|_rest_of_stack]}) do
     with {:ok, dt_from_stack} <- DateTime.from_unix(date_in_seconds),
          diff_in_seconds <- DateTime.diff(DateTime.utc_now, dt_from_stack),
          {:ok, datetime} <- DateTime.from_unix(diff_in_seconds)
     do
-      mach =
-        %Machine{m|stack: [datetime|rest_of_stack], ip: m.ip + 1 }
-
-      Predicator.Evaluator._next_ip(mach)
-      |> Predicator.Evaluator._execute(mach)
+      Machine.replace_stack(machine, datetime)
     end
   end
 
-  def _execute(["date_from_now"|_], m=%Machine{stack: [seconds_from_now|rest_of_stack]}) do
+  def _execute(["date_from_now"|_], machine=%Machine{stack: [seconds_from_now|_rest_of_stack]}) do
     date_from_now =
       DateTime.utc_now
       |> DateTime.to_unix
       |> add(seconds_from_now)
 
-    mach =
-      %Machine{m|stack: [date_from_now|rest_of_stack], ip: m.ip + 1 }
-
-    Predicator.Evaluator._next_ip(mach)
-    |> Predicator.Evaluator._execute(mach)
+    Machine.replace_stack(machine, date_from_now)
   end
 
 
@@ -62,5 +47,4 @@ defmodule Predicator.Evaluator.Date do
   end
 
   defp add(now, seconds_from_now), do: now + seconds_from_now
-
 end

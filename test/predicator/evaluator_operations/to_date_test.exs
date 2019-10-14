@@ -1,7 +1,8 @@
 defmodule Predicator.EvaluatorOperation.ToDateTest do
   use ExUnit.Case
   import Predicator.Evaluator
-  import Predicator.Evaluator.Date, only: [_execute: 2, _convert_date: 1]
+
+  @moduletag :parsed
 
   defmodule TestUser, do: defstruct [created_at: "2012-01-31 18:14:13.0", string_age: "29", age: 29]
 
@@ -12,7 +13,7 @@ defmodule Predicator.EvaluatorOperation.ToDateTest do
   # "2017-09-10"
   describe "[\"TO_DATE\"] operation" do
     test "lit val convert" do
-      inst = [["lit", "2017-09-10"], ["to_date"], ["lit", "2017-09-10"], ["to_date"], ["compare", "EQ"]]
+      inst = [["lit", "2017-09-10"], ["to_date"], ["lit", "2017-09-10"], ["to_date"], ["comparator", "EQ"]]
       assert execute(inst) == true
     end
   end
@@ -20,7 +21,7 @@ defmodule Predicator.EvaluatorOperation.ToDateTest do
 
   describe "[\"DATE_AGO\"] operation" do
     test "less then eval false" do
-      inst = [["load", "created_at"], ["to_date"], ["lit", 259200], ["date_ago"], ["lit", 432000], ["date_ago"], ["compare", "BETWEEN"]]
+      inst = [["load", "created_at"], ["to_date"], ["lit", 259200], ["date_ago"], ["lit", 432000], ["date_ago"], ["comparator", "BETWEEN"]]
       assert execute(inst, %TestUser{}) == false
     end
   end
@@ -28,7 +29,7 @@ defmodule Predicator.EvaluatorOperation.ToDateTest do
 
   describe "[\"DATE_FROM_NOW\"] operation" do
     test "less then eval true" do
-      inst = [["load", "created_at"], ["to_date"], ["lit", 259200], ["date_from_now"], ["lit", 432000], ["date_from_now"], ["compare", "BETWEEN"]]
+      inst = [["load", "created_at"], ["to_date"], ["lit", 259200], ["date_from_now"], ["lit", 432000], ["date_from_now"], ["comparator", "BETWEEN"]]
       assert execute(inst, %TestUser{}) == false
     end
   end

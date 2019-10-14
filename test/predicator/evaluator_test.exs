@@ -17,7 +17,6 @@ defmodule Predicator.EvaluatorTest do
     ]
   end
 
-
   describe "[\"lit\"] instruction" do
     test "true" do
       inst = [["lit", true]]
@@ -39,7 +38,6 @@ defmodule Predicator.EvaluatorTest do
       assert execute(inst) == true
     end
   end
-
 
   describe "[\"load\"] instruction" do
     test "true" do
@@ -63,43 +61,37 @@ defmodule Predicator.EvaluatorTest do
     end
   end
 
-
   describe "Errors" do
     test "InstructionNotCompleteError when coercion not followed by eval instuction" do
       inst1 = execute([["lit", 29],["to_str"]], %TestUser{})
       inst2 = execute([["lit", "29"],["to_int"]], %TestUser{})
-      inst3 = execute([["lit", true],["to_bool"]], %TestUser{})
-      inst4 = execute([["lit", "2010-01-31"],["to_date"]], %TestUser{})
+      inst3 = execute([["lit", "2010-01-31"],["to_date"]], %TestUser{})
 
-      assert inst1 = {:error, %Predicator.InstructionNotCompleteError{}}
-      assert inst2 = {:error, %Predicator.InstructionNotCompleteError{}}
-      assert inst3 = {:error, %Predicator.InstructionNotCompleteError{}}
-      assert inst4 = {:error, %Predicator.InstructionNotCompleteError{}}
+      assert {:error, %Predicator.InstructionNotCompleteError{}} = inst1
+      assert {:error, %Predicator.InstructionNotCompleteError{}} = inst2
+      assert {:error, %Predicator.InstructionNotCompleteError{}} = inst3
     end
 
     test "InstructionError on invalid predicate op" do
       inst = [["blabla", 2345], ["something", 342]]
-      assert execute(inst) == {:error, %Predicator.InstructionError{
+      assert {:error, %Predicator.InstructionError{
         error: "Non valid predicate instruction",
         instructions: [["blabla", 2345], ["something", 342]],
         predicate: "blabla",
         instruction_pointer: 0,
-        stack: [],
-        opts: [map_type: :atom, nil_values: ["", nil]]
-      }}
+        stack: []
+      }} = execute(inst)
     end
 
     test "InstructionError correct instruction pointer on invalid predicate op" do
       inst = [["lit", 3], ["blabla", 2345]]
-      assert execute(inst) == {:error, %Predicator.InstructionError{
+      assert {:error, %Predicator.InstructionError{
         error: "Non valid predicate instruction",
         instructions: [["lit", 3], ["blabla", 2345]],
         predicate: "blabla",
         instruction_pointer: 1,
-        stack: [3],
-        opts: [map_type: :atom, nil_values: ["", nil]]
-      }}
+        stack: [3]
+      }} = execute(inst)
     end
   end
-
 end
