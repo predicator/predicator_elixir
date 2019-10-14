@@ -19,7 +19,7 @@ defmodule Predicator.Mixfile do
   def package() do
     [
       name: :predicator,
-      maintainers: ["Joshua Richardson"],
+      maintainers: ["Joshua Richardson", "johnnyt"],
       licenses: ["MIT"],
       docs: [extras: ["README.md"]],
       links: %{"GitHub" => "https://github.com/predicator/predicator_elixir"}
