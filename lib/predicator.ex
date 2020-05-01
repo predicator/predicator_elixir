@@ -30,7 +30,6 @@ defmodule Predicator do
   def leex_string(str) when is_binary(str), do: str |> to_charlist |> leex_string
   def leex_string(str) when is_list(str), do: @lexer.string(str)
 
-
   @doc """
   Currently only compatible with 0.4.0 predicate syntax
   parse_lexed/1 takes a leexed token(list or tup) and returns a predicate. It also
@@ -53,9 +52,7 @@ defmodule Predicator do
   def parse_lexed(token, :atom_key_inst) when is_list(token), do: @atom_parser.parse(token)
   def parse_lexed({_, token, _}, :atom_key_inst), do: @atom_parser.parse(token)
 
-
   @doc """
-  Currently only compatible with 0.4.0 predicate syntax
   leex_and_parse/1 takes a string or charlist and does all lexing and parsing then
   returns the predicate.
 
@@ -73,21 +70,21 @@ defmodule Predicator do
     end
   end
 
-  @doc """
-  eval/3 takes a predicate set, a context struct and options
-  """
+  @doc "eval/3 takes a predicate set, a context struct and options"
   def eval(inst, context \\ %{}, opts \\ [map_type: :string])
   def eval(inst, context, opts), do: Evaluator.execute(inst, context, opts)
 
-  def compile(predicate) do
+
+  def compile(predicate, token_type \\ :string_key_inst) do
     with {:ok, tokens, _} <- leex_string(predicate),
-         {:ok, predicate} <- parse_lexed(tokens, :string_key_inst) do
+         {:ok, predicate} <- parse_lexed(tokens, token_type) do
       {:ok, predicate}
     else
       {:error, _} = err -> err
       {:error, left, right} -> {:error, {left, right}}
     end
   end
+
 
   def matches?(predicate, context) when is_list(context) do
     matches?(predicate, Map.new(context))

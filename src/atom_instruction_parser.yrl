@@ -1,9 +1,9 @@
 Header
 "%% Predicator Elixir".
 
-Nonterminals predicates predicate.
+Terminals lit load comparator jfalse jtrue '[' ']' ',' '&'.
 
-Terminals lit load comparator jfalse jtrue.
+Nonterminals predicates predicate value array array_elements between.
 
 Rootsymbol predicates.
 
@@ -17,7 +17,21 @@ predicate -> lit comparator load : [unwrap('$1'), unwrap('$3'), unwrap('$2')].
 predicate -> load comparator lit : [unwrap('$1'), unwrap('$3'), unwrap('$2')].
 predicate -> lit comparator lit : [unwrap('$1'), unwrap('$3'), unwrap('$2')].
 predicate -> load comparator load : [unwrap('$1'), unwrap('$3'), unwrap('$2')].
+predicate -> load comparator array : [unwrap('$1'), unwrap('$2'), '$3'].
+predicate -> load comparator lit '&' lit : [unwrap('$1'), unwrap('$2'), [extract_value('$3'), extract_value('$5')]].
+
+value -> lit : extract_value('$1').
+value -> load : extract_value('$1').
+value -> array : '$1'.
+array -> '[' array_elements ']' : '$2'.
+array -> '[' ']' : [].
+array_elements ->
+  value ',' array_elements : ['$1' | '$3'].
+array_elements ->
+  value : ['$1'].
+
 
 Erlang code.
 
 unwrap({INST,_,V}) -> [INST, V].
+extract_value({_, _, V}) -> V.

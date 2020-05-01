@@ -6,8 +6,11 @@ defmodule PredicatorTest do
   @moduletag :parsing
 
   describe "BETWEEN" do
-    test "not currently supported" do
-      assert {:error, _} = Predicator.compile("age between 5 and 10")
+    test "compiles" do
+      assert {:ok, [[:load, :age], [:comparator, :BETWEEN], [5, 10]]} =
+        Predicator.compile("age between 5 and 10", :atom_key_inst)
+      assert {:ok, [["load", :age], ["comparator", "BETWEEN"], [5, 10]]} =
+        Predicator.compile("age between 5 and 10")
     end
   end
 
@@ -52,8 +55,11 @@ defmodule PredicatorTest do
   end
 
   describe "IN" do
-    test "not currently supported" do
-      assert {:error, _} = Predicator.compile("foo in [1, 2, 3]")
+    test "compiles" do
+      assert {:ok, [[:load, :foo], [:comparator, :IN], [1, 5, 7, 20]]} =
+        Predicator.compile("foo in [1, 5, 7, 20]", :atom_key_inst)
+      assert {:ok, [["load", :foo], ["comparator", "IN"], [1, 5]]} =
+        Predicator.compile("foo in [1, 5]", :string_key_inst)
     end
   end
 
@@ -75,8 +81,11 @@ defmodule PredicatorTest do
   end
 
   describe "NOTIN" do
-    test "not currently supported" do
-      assert {:error, _} = Predicator.compile("foo not in [1, 2, 3]")
+    test "compiles" do
+      assert {:ok, [[:load, :foo], [:comparator, :NOTIN], [1, 2, 3]]} = 
+        Predicator.compile("foo not in [1, 2, 3]", :atom_key_inst)
+      assert {:ok, [["load", :foo], ["comparator", :NOTIN], [1, 2, 3]]} =
+        Predicator.compile("foo not in [1, 2, 3]")
     end
   end
 
