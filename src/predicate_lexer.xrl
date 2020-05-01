@@ -29,14 +29,14 @@ Rules.
 {NOTIN}        : {token, {comparator, TokenLine, 'NOTIN'}}.
 {STARTS_WITH}  : {token, {comparator, TokenLine, 'STARTS_WITH'}}.
 {ENDS_WITH}    : {token, {comparator, TokenLine, 'ENDS_WITH'}}.
+
 {AND}          : {token, {'&', TokenLine}}.
-% {AND}          : skip_token.
 {BOOLEAN}      : {token, {lit, TokenLine, list_to_existing_atom(TokenChars)}}.
 {INTEGER}      : {token, {lit, TokenLine, list_to_integer(TokenChars)}}.
 {ATOM}         : {token, {load, TokenLine, list_to_atom(TokenChars)}}.
 {IDENTIFIER}   : {token, {load, TokenLine, list_to_atom(TokenChars)}}.
-{WHITESPACE}   : skip_token.
 {SYMBOLS}      : {token, {list_to_atom(TokenChars), TokenLine}}.
+{WHITESPACE}   : skip_token.
 % and            : {token, {jfalse, TokenLine, list_to_existing_atom(TokenChars)}}.
 % or             : {token, {jtrue, TokenLine, list_to_existing_atom(TokenChars)}}.
 

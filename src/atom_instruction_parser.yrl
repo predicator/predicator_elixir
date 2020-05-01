@@ -18,17 +18,19 @@ predicate -> load comparator lit : [unwrap('$1'), unwrap('$3'), unwrap('$2')].
 predicate -> lit comparator lit : [unwrap('$1'), unwrap('$3'), unwrap('$2')].
 predicate -> load comparator load : [unwrap('$1'), unwrap('$3'), unwrap('$2')].
 predicate -> load comparator array : [unwrap('$1'), unwrap('$2'), '$3'].
-predicate -> load comparator lit '&' lit : [unwrap('$1'), unwrap('$2'), [extract_value('$3'), extract_value('$5')]].
+predicate -> load comparator between : [unwrap('$1'), unwrap('$2'), '$3'].
+
+between -> lit '&' lit : [extract_value('$1'), extract_value('$3')]
 
 value -> lit : extract_value('$1').
 value -> load : extract_value('$1').
 value -> array : '$1'.
+
 array -> '[' array_elements ']' : '$2'.
 array -> '[' ']' : [].
-array_elements ->
-  value ',' array_elements : ['$1' | '$3'].
-array_elements ->
-  value : ['$1'].
+
+array_elements -> value ',' array_elements : ['$1' | '$3'].
+array_elements -> value : ['$1'].
 
 
 Erlang code.
