@@ -17,10 +17,8 @@ predicate -> lit comparator load : [unwrap('$1'), unwrap('$3'), unwrap('$2')].
 predicate -> load comparator lit : [unwrap('$1'), unwrap('$3'), unwrap('$2')].
 predicate -> lit comparator lit : [unwrap('$1'), unwrap('$3'), unwrap('$2')].
 predicate -> load comparator load : [unwrap('$1'), unwrap('$3'), unwrap('$2')].
-predicate -> load comparator array : [unwrap('$1'), unwrap('$2'), '$3'].
-predicate -> load comparator between : [unwrap('$1'), unwrap('$2'), '$3'].
-
-between -> lit '&' lit : [extract_value('$1'), extract_value('$3')]
+predicate -> load comparator array : [unwrap('$1'), [list, '$3'], unwrap('$2')].
+predicate -> load comparator lit '&' lit : [unwrap('$1'), unwrap('$3'), unwrap('$5'), unwrap('$2')].
 
 value -> lit : extract_value('$1').
 value -> load : extract_value('$1').

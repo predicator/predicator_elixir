@@ -17,8 +17,8 @@ predicate -> lit comparator load : [unwrap('$1'), unwrap('$3'), unwrap('$2')].
 predicate -> load comparator lit : [unwrap('$1'), unwrap('$3'), unwrap('$2')].
 predicate -> lit comparator lit : [unwrap('$1'), unwrap('$3'), unwrap('$2')].
 predicate -> load comparator load : [unwrap('$1'), unwrap('$3'), unwrap('$2')].
-predicate -> load comparator array : [unwrap('$1'), unwrap('$2'), '$3'].
-predicate -> load comparator lit '&' lit : [unwrap('$1'), unwrap('$2'), [extract_value('$3'), extract_value('$5')]].
+predicate -> load comparator array : [unwrap('$1'), [list, '$3'], unwrap('$2')].
+predicate -> load comparator lit '&' lit : [unwrap('$1'), unwrap('$3'), unwrap('$5'), unwrap('$2')].
 
 value -> lit : extract_value('$1').
 value -> load : extract_value('$1').
@@ -39,6 +39,8 @@ unwrap({INST,_,V='LT'}) ->
 unwrap({INST,_,V='EQ'}) ->
   [tobin(INST), tobin(V)];
 unwrap({INST,_,V='IN'}) ->
+  [tobin(INST), tobin(V)];
+unwrap({INST,_,V='NOTIN'}) ->
   [tobin(INST), tobin(V)];
 unwrap({INST,_,V='BETWEEN'}) ->
   [tobin(INST), tobin(V)];
