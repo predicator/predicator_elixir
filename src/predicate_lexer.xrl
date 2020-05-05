@@ -7,15 +7,18 @@ GREATER_THAN = (greater_than|gt|GT|>)
 BETWEEN      = (between|bt|BTWEEN|BT|\.\.)
 IN           = (in|IN|IN)
 NOTIN        = (notin|NOTIN|NI|not\s\in)
-STARTS_WITH  = (starts_with|STARTS_WITH|SW)
-ENDS_WITH    = (ends_with|ENDS_WITH|EW)
+STARTS_WITH  = (starts_with|STARTS_WITH|SW|starts\swith|startswith)
+ENDS_WITH    = (ends_with|ENDS_WITH|EW|ends\swith|endswith)
 AND          = (and|AND|&)
 
 ATOM         = :[a-z_]+
 IDENTIFIER   = [a-z][A-Za-z0-9_]*
 INTEGER      = [0-9]+
 SYMBOLS      = [{}\[\],]
-% ARRAY        = \[(.*?)\]
+STRING       = '.*'
+% STRING       = '([^'].*)
+STRING       = '((\?:\\.|[^\\''])*)'
+% ARRAY      = \[(.*?)\]
 BOOLEAN      = (true|false)
 
 
@@ -35,6 +38,7 @@ Rules.
 {INTEGER}      : {token, {lit, TokenLine, list_to_integer(TokenChars)}}.
 {ATOM}         : {token, {load, TokenLine, list_to_atom(TokenChars)}}.
 {IDENTIFIER}   : {token, {load, TokenLine, list_to_atom(TokenChars)}}.
+{STRING}       : {token, {string, sanitized_string(TokenChars), TokenLine}}.
 {SYMBOLS}      : {token, {list_to_atom(TokenChars), TokenLine}}.
 {WHITESPACE}   : skip_token.
 % and            : {token, {jfalse, TokenLine, list_to_existing_atom(TokenChars)}}.
@@ -42,3 +46,7 @@ Rules.
 
 
 Erlang code.
+% for i <- 1..10, f <- [0, 0.5], do: i+f
+
+sanitized_string(Str) ->
+  string:trim(list_to_binary(Str), both, "'").

@@ -21,8 +21,13 @@ defmodule PredicatorTest do
   end
 
   describe "ENDSWITH" do
-    test "not currently supported" do
-      assert {:error, _} = Predicator.compile("name ends with 'stuff'")
+    test "compiles" do
+      assert {:ok, [[:lit, "foobar"], [:lit, "bar"], ["compare", "ENDSWITH"] ]} =
+        Predicator.compile("foobar ends with 'bar'", :atom_key_inst)
+      assert {:ok, [[:lit, "foobar"], [:lit, "bar"], ["compare", "ENDSWITH"] ]} =
+        Predicator.compile("'foobar' ends with 'bar'", :atom_key_inst)
+      # assert {:ok, [["lit", "foobar"], ["lit", "bar"], ["compare", "ENDSWITH"] ]} =
+      #   Predicator.compile("'foobar' ends with 'bar'")
     end
   end
 
@@ -97,7 +102,10 @@ defmodule PredicatorTest do
 
   describe "STARTSWITH" do
     test "not currently supported" do
-      assert {:error, _} = Predicator.compile("name starts with 'stuff'")
+      assert {:ok, [[:load, :name], [:lit, "stuff"], [:comparator, :STARTS_WITH]]} =
+        Predicator.compile("name starts with 'stuff'", :atom_key_inst)
+      assert {:ok, [[:lit, "name"], [:lit, "stuff"], [:comparator, :STARTS_WITH]]} =
+        Predicator.compile("'name' starts with 'stuff'", :atom_key_inst)
     end
   end
 
