@@ -30,8 +30,8 @@ Rules.
 {BETWEEN}      : {token, {comparator, TokenLine, 'BETWEEN'}}.
 {IN}           : {token, {comparator, TokenLine, 'IN'}}.
 {NOTIN}        : {token, {comparator, TokenLine, 'NOTIN'}}.
-{STARTS_WITH}  : {token, {comparator, TokenLine, 'STARTS_WITH'}}.
-{ENDS_WITH}    : {token, {comparator, TokenLine, 'ENDS_WITH'}}.
+{STARTS_WITH}  : {token, {comparator, TokenLine, 'STARTSWITH'}}.
+{ENDS_WITH}    : {token, {comparator, TokenLine, 'ENDSWITH'}}.
 
 {AND}          : {token, {'&', TokenLine}}.
 {BOOLEAN}      : {token, {lit, TokenLine, list_to_existing_atom(TokenChars)}}.

@@ -126,6 +126,7 @@ defmodule Predicator.Machine do
     put_instruction(machine, val)
   end
 
+
   def accept_instruction(machine = %__MODULE__{stack: [val|_rest_of_stack]}, ["not"|_]) do
     put_instruction(machine, !val)
   end
