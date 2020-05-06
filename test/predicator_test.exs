@@ -12,6 +12,14 @@ defmodule PredicatorTest do
       assert {:ok, [["load", "age"], ["lit", 5], ["lit", 10], ["comparator", "BETWEEN"]]} =
         Predicator.compile("age between 5 and 10")
     end
+
+    test "evaluates to true" do
+      assert Predicator.matches?("age between 5 and 10", age: 7) == true
+    end
+
+    test "evaluates to false" do
+      assert Predicator.matches?("age between 5 and 10", age: 14) == false
+    end
   end
 
   describe "BLANK" do
@@ -34,6 +42,10 @@ defmodule PredicatorTest do
 
     test "evaluates to true" do
       assert Predicator.matches?("foobar ends with 'bar'", foobar: "foobar") == true
+    end
+
+    test "evaluates to false" do
+      assert Predicator.matches?("foobar ends with 'bar'", foobar: "world") == false
     end
   end
 
@@ -76,6 +88,27 @@ defmodule PredicatorTest do
     test "evaluates to true" do
       assert Predicator.matches?("foo in [0, 1, 2, 3]", foo: 0) == true
     end
+
+    test "evaluates to false" do
+      assert Predicator.matches?("foo in [0, 1, 2, 3]", foo: 34632) == false
+    end
+  end
+
+  describe "NOTIN" do
+    test "compiles" do
+      assert {:ok, [[:load, :foo], [:array, [1, 2, 3]], [:comparator, :NOTIN]]} =
+        Predicator.compile("foo not in [1, 2, 3]", :atom_key_inst)
+      assert {:ok, [["load", "foo"], ["array", [1, 2, 3]], ["comparator", "NOTIN"]]} =
+        Predicator.compile("foo not in [1, 2, 3]")
+    end
+
+    test "evaluates to true" do
+      assert Predicator.matches?("foo not in [1, 2, 3]", foo: 0) == true
+    end
+
+    test "evaluates to false" do
+      assert Predicator.matches?("foo not in [1, 2, 3]", foo: 2) == false
+    end
   end
 
   describe "JUMP" do
@@ -92,19 +125,6 @@ defmodule PredicatorTest do
 
     test "returns false if the inequality is untrue" do
       assert Predicator.matches?("foo < 1", foo: 1) == false
-    end
-  end
-
-  describe "NOTIN" do
-    test "compiles" do
-      assert {:ok, [[:load, :foo], [:array, [1, 2, 3]], [:comparator, :NOTIN]]} =
-        Predicator.compile("foo not in [1, 2, 3]", :atom_key_inst)
-      assert {:ok, [["load", "foo"], ["array", [1, 2, 3]], ["comparator", "NOTIN"]]} =
-        Predicator.compile("foo not in [1, 2, 3]")
-    end
-
-    test "evaluates to true" do
-      assert Predicator.matches?("foo not in [1, 2, 3]", foo: 0) == true
     end
   end
 
@@ -126,6 +146,15 @@ defmodule PredicatorTest do
       assert {:ok, [["lit", "name"], ["lit", "stuff"], ["comparator", "STARTSWITH"]]} =
         Predicator.compile("'name' starts with 'stuff'")
     end
+
+    test "returns true" do
+      assert Predicator.matches?("name starts with 'joa'", name: "joaquin") == true
+    end
+
+    test "returns false" do
+      assert Predicator.matches?("name starts with 'stuff'", name: "joaquin") == false
+    end
+
   end
 
   describe "OR" do
