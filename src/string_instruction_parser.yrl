@@ -1,7 +1,7 @@
 Header
 "%% Predicator Elixir".
 
-Terminals lit load comparator jfalse jtrue '[' ']' ',' '&'.
+Terminals lit load comparator jfalse jtrue '[' ']' ',' '&' string.
 
 Nonterminals predicates predicate value array array_elements.
 
@@ -17,8 +17,10 @@ predicate -> lit comparator load : [unwrap('$1'), unwrap('$3'), unwrap('$2')].
 predicate -> load comparator lit : [unwrap('$1'), unwrap('$3'), unwrap('$2')].
 predicate -> lit comparator lit : [unwrap('$1'), unwrap('$3'), unwrap('$2')].
 predicate -> load comparator load : [unwrap('$1'), unwrap('$3'), unwrap('$2')].
-predicate -> load comparator array : [unwrap('$1'), [list, '$3'], unwrap('$2')].
 predicate -> load comparator lit '&' lit : [unwrap('$1'), unwrap('$3'), unwrap('$5'), unwrap('$2')].
+predicate -> load comparator array : [unwrap('$1'), [<<"list">>, '$3'], unwrap('$2')].
+predicate -> string comparator string : [unwrap_string('$1'), unwrap_string('$3'), unwrap('$2')].
+predicate -> load comparator string : [unwrap('$1'), unwrap_string('$3'), unwrap('$2')].
 
 value -> lit : extract_value('$1').
 value -> load : extract_value('$1').
@@ -44,8 +46,14 @@ unwrap({INST,_,V='NOTIN'}) ->
   [tobin(INST), tobin(V)];
 unwrap({INST,_,V='BETWEEN'}) ->
   [tobin(INST), tobin(V)];
+unwrap({INST,_,V='ENDS_WITH'}) ->
+  [tobin(INST), tobin(V)];
+unwrap({INST,_,V}) when erlang:is_integer(V) ->
+  [tobin(INST), V];
 unwrap({INST,_,V}) ->
-  [tobin(INST), V].
+  [tobin(INST), tobin(V)].
+
+unwrap_string({INST=string,V, _}) -> [<<"lit">>, V].
 
 tobin(ATOM) -> erlang:atom_to_binary(ATOM, utf8).
 
