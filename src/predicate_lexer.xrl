@@ -10,15 +10,11 @@ NOTIN        = (notin|NOTIN|NI|not\s\in)
 STARTS_WITH  = (starts_with|STARTS_WITH|SW|starts\swith|startswith)
 ENDS_WITH    = (ends_with|ENDS_WITH|EW|ends\swith|endswith)
 AND          = (and|AND|&)
-
 ATOM         = :[a-z_]+
 IDENTIFIER   = [a-z][A-Za-z0-9_]*
 INTEGER      = [0-9]+
 SYMBOLS      = [{}\[\],]
-STRING       = '.*'
-% STRING       = '([^'].*)
 STRING       = '((\?:\\.|[^\\''])*)'
-% ARRAY      = \[(.*?)\]
 BOOLEAN      = (true|false)
 
 
@@ -29,10 +25,10 @@ Rules.
 {EQUAL}        : {token, {comparator, TokenLine, 'EQ'}}.
 {BETWEEN}      : {token, {comparator, TokenLine, 'BETWEEN'}}.
 {IN}           : {token, {comparator, TokenLine, 'IN'}}.
+{OR}           : {token, {comparator, TokenLine, 'OR'}}.
 {NOTIN}        : {token, {comparator, TokenLine, 'NOTIN'}}.
 {STARTS_WITH}  : {token, {comparator, TokenLine, 'STARTSWITH'}}.
 {ENDS_WITH}    : {token, {comparator, TokenLine, 'ENDSWITH'}}.
-
 {AND}          : {token, {'&', TokenLine}}.
 {BOOLEAN}      : {token, {lit, TokenLine, list_to_existing_atom(TokenChars)}}.
 {INTEGER}      : {token, {lit, TokenLine, list_to_integer(TokenChars)}}.
@@ -46,7 +42,5 @@ Rules.
 
 
 Erlang code.
-% for i <- 1..10, f <- [0, 0.5], do: i+f
-
 sanitized_string(Str) ->
   string:trim(list_to_binary(Str), both, "'").
