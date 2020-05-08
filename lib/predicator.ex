@@ -2,7 +2,7 @@ defmodule Predicator do
   @moduledoc """
   Documentation for Predicator.
 
-  Lexer and Parser currently only compatible with 0.4.0 predicate syntax
+  Lexer and Parser currently compatible with 1.1.0 predicate syntax
   """
   alias Predicator.Evaluator
 
@@ -17,7 +17,6 @@ defmodule Predicator do
   @type predicate :: String.t | charlist
 
   @doc """
-  Currently only compatible with 0.4.0 predicate syntax
   leex_string/1 takes string or charlist and returns a lexed tuple for parsing.
 
   iex> leex_string('10 > 5')
@@ -31,7 +30,6 @@ defmodule Predicator do
   def leex_string(str) when is_list(str), do: @lexer.string(str)
 
   @doc """
-  Currently only compatible with 0.4.0 predicate syntax
   parse_lexed/1 takes a leexed token(list or tup) and returns a predicate. It also
   can take optional atom for type of token keys to return. options are `:string_ey_inst` & `:atom_key_inst`
 
