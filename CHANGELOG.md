@@ -2,7 +2,7 @@
 
 ## v0.7.3
   * Enhancements
-    * Adds leex and parsing for `in`, `notin`, `between` instructions
+    * Adds leex and parsing for `in`, `notin`, `between`, `startswith`, `endswith` instructions
 
 ## v0.7.1
   * New
