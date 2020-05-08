@@ -1,8 +1,8 @@
 # CHANGELOG
 
-## v0.7.2
+## v0.7.3
   * Enhancements
-    * Adds option to leex and parse instruction tokens into atoms or strings with the new `leex_and_parse/2`
+    * Adds leex and parsing for `in`, `notin`, `between`, `startswith`, `endswith` instructions
 
 ## v0.7.1
   * New
