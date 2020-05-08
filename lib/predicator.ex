@@ -86,6 +86,7 @@ defmodule Predicator do
   end
 
 
+  def matches?(predicate), do: matches?(predicate, [])
   def matches?(predicate, context) when is_list(context) do
     matches?(predicate, Map.new(context))
   end
