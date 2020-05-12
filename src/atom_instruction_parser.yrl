@@ -3,7 +3,7 @@ Header
 
 Terminals lit load comparator jfalse jtrue '[' ']' ',' '&' string. 
 
-Nonterminals predicates predicate value array array_elements between.
+Nonterminals predicates predicate value array array_elements.
 
 Rootsymbol predicates.
 
@@ -32,11 +32,13 @@ array_elements -> value : ['$1'].
 
 value -> lit : extract_value('$1').
 value -> load : extract_value('$1').
+value -> string : extract_string('$1').
 value -> array : '$1'.
 
 
 Erlang code.
 
 unwrap({INST,_,V}) -> [INST, V].
-unwrap_string({INST=string,V, _}) -> [lit, V].
+unwrap_string({_INST=string,V, _}) -> [lit, V].
+extract_string({_, Str, _}) -> Str.
 extract_value({_, _, V}) -> V.
