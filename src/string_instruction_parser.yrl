@@ -1,7 +1,7 @@
 Header
 "%% Predicator Elixir".
 
-Terminals lit load comparator jfalse jtrue '[' ']' ',' '&' string.
+Terminals lit load comparator jfalse jtrue '[' ']' ',' '&' string blank.
 
 Nonterminals predicates predicate value array array_elements.
 
@@ -13,6 +13,9 @@ predicates -> predicates jfalse predicate : {'$1', jfalse, '$3'}.
 predicates -> predicate jtrue predicate : ['$1', jtrue, '$3']. %% jtrue
 predicates -> predicates jtrue predicate : {'$1', jtrue, '$3'}.
 
+predicate -> load blank : [unwrap('$1'), unwrap('$2')].
+predicate -> lit blank : [unwrap('$1'), unwrap('$2')].
+predicate -> string blank : [unwrap_string('$1'), unwrap('$2')].
 predicate -> lit comparator load : [unwrap('$1'), unwrap('$3'), unwrap('$2')].
 predicate -> load comparator lit : [unwrap('$1'), unwrap('$3'), unwrap('$2')].
 predicate -> lit comparator lit : [unwrap('$1'), unwrap('$3'), unwrap('$2')].
@@ -53,9 +56,11 @@ unwrap({INST,_,V='ENDS_WITH'}) ->
 unwrap({INST,_,V}) when erlang:is_integer(V) ->
   [tobin(INST), V];
 unwrap({INST,_,V}) ->
-  [tobin(INST), tobin(V)].
+  [tobin(INST), tobin(V)];
+unwrap({INST, _}) ->
+  [tobin(INST)].
 
-unwrap_string({INST=string,V, _}) -> [<<"lit">>, V].
+unwrap_string({_INST=string,V, _}) -> [<<"lit">>, V].
 
 tobin(ATOM) -> erlang:atom_to_binary(ATOM, utf8).
 

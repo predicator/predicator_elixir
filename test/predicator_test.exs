@@ -8,9 +8,10 @@ defmodule PredicatorTest do
   describe "BETWEEN" do
     test "compiles" do
       assert {:ok, [[:load, :age], [:lit, 5], [:lit, 10], [:comparator, :BETWEEN]]} =
-        Predicator.compile("age between 5 and 10", :atom_key_inst)
+               Predicator.compile("age between 5 and 10", :atom_key_inst)
+
       assert {:ok, [["load", "age"], ["lit", 5], ["lit", 10], ["comparator", "BETWEEN"]]} =
-        Predicator.compile("age between 5 and 10")
+               Predicator.compile("age between 5 and 10")
     end
 
     test "evaluates to true" do
@@ -27,14 +28,16 @@ defmodule PredicatorTest do
   describe "STARTSWITH" do
     test "compiles" do
       assert {:ok, [[:load, :name], [:lit, "stuff"], [:comparator, :STARTSWITH]]} =
-        Predicator.compile("name starts with 'stuff'", :atom_key_inst)
+               Predicator.compile("name starts with 'stuff'", :atom_key_inst)
+
       assert {:ok, [[:lit, "name"], [:lit, "stuff"], [:comparator, :STARTSWITH]]} =
-        Predicator.compile("'name' starts with 'stuff'", :atom_key_inst)
+               Predicator.compile("'name' starts with 'stuff'", :atom_key_inst)
 
       assert {:ok, [["load", "name"], ["lit", "stuff"], ["comparator", "STARTSWITH"]]} =
-        Predicator.compile("name starts with 'stuff'")
+               Predicator.compile("name starts with 'stuff'")
+
       assert {:ok, [["lit", "name"], ["lit", "stuff"], ["comparator", "STARTSWITH"]]} =
-        Predicator.compile("'name' starts with 'stuff'")
+               Predicator.compile("'name' starts with 'stuff'")
     end
 
     test "returns true" do
@@ -50,14 +53,17 @@ defmodule PredicatorTest do
 
   describe "ENDSWITH" do
     test "compiles" do
-      assert {:ok, [[:load, :foobar], [:lit, "bar"], [:comparator, :ENDSWITH] ]} =
-        Predicator.compile("foobar ends with 'bar'", :atom_key_inst)
-      assert {:ok, [[:lit, "foobar"], [:lit, "bar"], [:comparator, :ENDSWITH] ]} =
-        Predicator.compile("'foobar' ends with 'bar'", :atom_key_inst)
-      assert {:ok, [["lit", "foobar"], ["lit", "bar"], ["comparator", "ENDSWITH"] ]} =
-        Predicator.compile("'foobar' ends with 'bar'")
-      assert {:ok, [["load", "foobar"], ["lit", "bar"], ["comparator", "ENDSWITH"] ]} =
-        Predicator.compile("foobar ends with 'bar'")
+      assert {:ok, [[:load, :foobar], [:lit, "bar"], [:comparator, :ENDSWITH]]} =
+               Predicator.compile("foobar ends with 'bar'", :atom_key_inst)
+
+      assert {:ok, [[:lit, "foobar"], [:lit, "bar"], [:comparator, :ENDSWITH]]} =
+               Predicator.compile("'foobar' ends with 'bar'", :atom_key_inst)
+
+      assert {:ok, [["lit", "foobar"], ["lit", "bar"], ["comparator", "ENDSWITH"]]} =
+               Predicator.compile("'foobar' ends with 'bar'")
+
+      assert {:ok, [["load", "foobar"], ["lit", "bar"], ["comparator", "ENDSWITH"]]} =
+               Predicator.compile("foobar ends with 'bar'")
     end
 
     test "evaluates to true" do
@@ -121,10 +127,11 @@ defmodule PredicatorTest do
 
   describe "IN" do
     test "compiles" do
-      assert {:ok, [[:load, :foo], [:array, [1, 5, 7, 20]],[:comparator, :IN]]} =
-        Predicator.compile("foo in [1, 5, 7, 20]", :atom_key_inst)
+      assert {:ok, [[:load, :foo], [:array, [1, 5, 7, 20]], [:comparator, :IN]]} =
+               Predicator.compile("foo in [1, 5, 7, 20]", :atom_key_inst)
+
       assert {:ok, [["load", "foo"], ["array", [1, 5]], ["comparator", "IN"]]} =
-        Predicator.compile("foo in [1, 5]", :string_key_inst)
+               Predicator.compile("foo in [1, 5]", :string_key_inst)
     end
 
     test "evaluates to true" do
@@ -141,9 +148,10 @@ defmodule PredicatorTest do
   describe "NOTIN" do
     test "compiles" do
       assert {:ok, [[:load, :foo], [:array, [1, 2, 3]], [:comparator, :NOTIN]]} =
-        Predicator.compile("foo not in [1, 2, 3]", :atom_key_inst)
+               Predicator.compile("foo not in [1, 2, 3]", :atom_key_inst)
+
       assert {:ok, [["load", "foo"], ["array", [1, 2, 3]], ["comparator", "NOTIN"]]} =
-        Predicator.compile("foo not in [1, 2, 3]")
+               Predicator.compile("foo not in [1, 2, 3]")
     end
 
     test "evaluates to true" do
@@ -173,8 +181,19 @@ defmodule PredicatorTest do
   end
 
   describe "BLANK" do
-    test "not currently supported" do
-      assert {:error, _} = Predicator.compile("name blank")
+    test "compiles" do
+      assert {:ok, [[:load, :foo], [:blank]]} = Predicator.compile("foo is blank", :atom_key_inst)
+      assert {:ok, [["load", "foo"], ["blank"]]} = Predicator.compile("foo is blank")
+    end
+
+    test "evaluates to true" do
+      assert Predicator.matches?("'' is blank") == true
+      assert Predicator.matches?("foo is blank", foo: "") == true
+    end
+
+    test "evaluates to false" do
+      assert Predicator.matches?("'foo' is blank") == false
+      assert Predicator.matches?("foo is blank", foo: "bar") == false
     end
   end
 end

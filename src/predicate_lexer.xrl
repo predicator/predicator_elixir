@@ -9,6 +9,7 @@ IN           = (in|IN|IN)
 NOTIN        = (notin|NOTIN|NI|not\s\in)
 STARTS_WITH  = (starts_with|STARTS_WITH|SW|starts\swith|startswith)
 ENDS_WITH    = (ends_with|ENDS_WITH|EW|ends\swith|endswith)
+BLANK        = (is_blank|IS_BLANK|IB|is\sblank|isblank)
 AND          = (and|AND|&)
 ATOM         = :[a-z_]+
 IDENTIFIER   = [a-z][A-Za-z0-9_]*
@@ -29,6 +30,7 @@ Rules.
 {NOTIN}        : {token, {comparator, TokenLine, 'NOTIN'}}.
 {STARTS_WITH}  : {token, {comparator, TokenLine, 'STARTSWITH'}}.
 {ENDS_WITH}    : {token, {comparator, TokenLine, 'ENDSWITH'}}.
+{BLANK}        : {token, {blank, TokenLine}}.
 {AND}          : {token, {'&', TokenLine}}.
 {BOOLEAN}      : {token, {lit, TokenLine, list_to_existing_atom(TokenChars)}}.
 {INTEGER}      : {token, {lit, TokenLine, list_to_integer(TokenChars)}}.
