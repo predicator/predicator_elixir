@@ -35,6 +35,7 @@ array_elements -> value : ['$1'].
 
 value -> lit : extract_value('$1').
 value -> load : extract_value('$1').
+value -> string : extract_string('$1').
 value -> array : '$1'.
 
 Erlang code.
@@ -63,5 +64,7 @@ unwrap({INST, _}) ->
 unwrap_string({_INST=string,V, _}) -> [<<"lit">>, V].
 
 tobin(ATOM) -> erlang:atom_to_binary(ATOM, utf8).
+
+extract_string({_, Str, _}) -> Str.
 
 extract_value({_, _, V}) -> V.

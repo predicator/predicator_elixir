@@ -35,6 +35,7 @@ array_elements -> value : ['$1'].
 
 value -> lit : extract_value('$1').
 value -> load : extract_value('$1').
+value -> string : extract_string('$1').
 value -> array : '$1'.
 
 
@@ -44,4 +45,6 @@ unwrap({INST,_,V}) -> [INST, V];
 unwrap({INST, _}) -> [INST].
 
 unwrap_string({_INST=string,V, _}) -> [lit, V].
+
+extract_string({_, Str, _}) -> Str.
 extract_value({_, _, V}) -> V.

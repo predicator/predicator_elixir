@@ -132,16 +132,24 @@ defmodule PredicatorTest do
 
       assert {:ok, [["load", "foo"], ["array", [1, 5]], ["comparator", "IN"]]} =
                Predicator.compile("foo in [1, 5]", :string_key_inst)
+
+      assert {:ok, [[:load, :foo], [:array, ["foo", "bar"]], [:comparator, :IN]]} =
+               Predicator.compile("foo in ['foo', 'bar']", :atom_key_inst)
+
+      assert {:ok, [["load", "foo"], ["array", ["foo", "bar"]], ["comparator", "IN"]]} =
+               Predicator.compile("foo in ['foo', 'bar']", :string_key_inst)
     end
 
     test "evaluates to true" do
       assert Predicator.matches?("2 in [0, 1, 2, 3]") == true
       assert Predicator.matches?("foo in [0, 1, 2, 3]", foo: 0) == true
+      assert Predicator.matches?("foo in ['foo', 'bar']", foo: "foo") == true
     end
 
     test "evaluates to false" do
       assert Predicator.matches?("666 in [0, 1, 2, 3]") == false
       assert Predicator.matches?("foo in [0, 1, 2, 3]", foo: 666) == false
+      assert Predicator.matches?("foo in ['foo', 'bar']", foo: "foobar") == false
     end
   end
 
@@ -152,16 +160,24 @@ defmodule PredicatorTest do
 
       assert {:ok, [["load", "foo"], ["array", [1, 2, 3]], ["comparator", "NOTIN"]]} =
                Predicator.compile("foo not in [1, 2, 3]")
+
+      assert {:ok, [[:load, :foo], [:array, ["foo", "bar"]], [:comparator, :NOTIN]]} =
+               Predicator.compile("foo not in ['foo', 'bar']", :atom_key_inst)
+
+      assert {:ok, [["load", "foo"], ["array", ["foo", "bar"]], ["comparator", "NOTIN"]]} =
+               Predicator.compile("foo not in ['foo', 'bar']", :string_key_inst)
     end
 
     test "evaluates to true" do
       assert Predicator.matches?("12 not in [1, 2, 3]") == true
       assert Predicator.matches?("foo not in [1, 2, 3]", foo: 0) == true
+      assert Predicator.matches?("foo not in ['foo', 'bar']", foo: "foobar") == true
     end
 
     test "evaluates to false" do
       assert Predicator.matches?("2 not in [1, 2, 3]") == false
       assert Predicator.matches?("foo not in [1, 2, 3]", foo: 2) == false
+      assert Predicator.matches?("foo not in ['foo', 'bar']", foo: "foo") == false
     end
   end
 
