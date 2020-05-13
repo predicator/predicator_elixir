@@ -24,6 +24,7 @@ predicate -> load comparator lit '&' lit : [unwrap('$1'), unwrap('$3'), unwrap('
 predicate -> lit comparator lit '&' lit : [unwrap('$1'), unwrap('$3'), unwrap('$5'), unwrap('$2')].
 predicate -> load comparator array : [unwrap('$1'), [<<"array">>, '$3'], unwrap('$2')].
 predicate -> lit comparator array : [unwrap('$1'), [<<"array">>, '$3'], unwrap('$2')].
+predicate -> string comparator array : [unwrap_string('$1'), [<<"array">>, '$3'], unwrap('$2')].
 predicate -> string comparator string : [unwrap_string('$1'), unwrap_string('$3'), unwrap('$2')].
 predicate -> load comparator string : [unwrap('$1'), unwrap_string('$3'), unwrap('$2')].
 
