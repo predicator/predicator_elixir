@@ -38,6 +38,9 @@ defmodule PredicatorTest do
 
       assert {:ok, [["lit", "name"], ["lit", "stuff"], ["comparator", "STARTSWITH"]]} =
                Predicator.compile("'name' starts with 'stuff'")
+
+      assert {:ok, [["lit", "name"], ["lit", "stuff"], ["comparator", "STARTSWITH"]]} =
+               Predicator.compile("\"name\" starts with \"stuff\"")
     end
 
     test "returns true" do

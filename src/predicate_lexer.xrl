@@ -16,7 +16,7 @@ ATOM         = :[a-z_]+
 IDENTIFIER   = [a-z][A-Za-z0-9_]*
 INTEGER      = [0-9]+
 SYMBOLS      = [{}\[\],]
-STRING       = '((\?:\\.|[^\\''])*)'
+STRING       = ("((\?:\\.|[^\\""])*)"|'((\?:\\.|[^\\''])*)')
 BOOLEAN      = (true|false)
 
 
@@ -46,5 +46,7 @@ Rules.
 
 
 Erlang code.
+sanitized_string("'" ++ _Rest = Str) ->
+  string:trim(list_to_binary(Str), both, "'");
 sanitized_string(Str) ->
-  string:trim(list_to_binary(Str), both, "'").
+  string:trim(list_to_binary(Str), both, "\"").

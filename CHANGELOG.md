@@ -5,6 +5,7 @@
     * `Predicator.matches?/3` accepts evaluator options.
   * Enhancements
     * Adds leex and parsing for `isblank` and `ispresent`.
+    * Supports escaped double quote strings.
   * Fix
     * `in` and `notin` accept list of strings.
 
