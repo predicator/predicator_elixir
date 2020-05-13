@@ -82,7 +82,7 @@ defmodule PredicatorTest do
 
   describe "EQ" do
     test "compiles" do
-      assert {:ok, _} = Predicator.compile("foo = 1")
+      assert {:ok, [["load", "foo"], ["lit", 1], ["comparator", "EQ"]]} = Predicator.compile("foo = 1")
     end
 
     test "returns true if the equality is true" do
@@ -98,7 +98,7 @@ defmodule PredicatorTest do
 
   describe "GT" do
     test "compiles" do
-      assert {:ok, _} = Predicator.compile("foo > 1")
+      assert {:ok, [["load", "foo"], ["lit", 1], ["comparator", "GT"]]} = Predicator.compile("foo > 1")
     end
 
     test "returns true if the inequality is true" do
@@ -114,7 +114,7 @@ defmodule PredicatorTest do
 
   describe "LT" do
     test "compiles" do
-      assert {:ok, _} = Predicator.compile("foo < 1")
+      assert {:ok, [["load", "foo"], ["lit", 1], ["comparator", "LT"]]} = Predicator.compile("foo < 1")
     end
 
     test "returns true if the inequality is true" do
@@ -184,8 +184,20 @@ defmodule PredicatorTest do
     end
   end
 
-  describe "JUMP" do
-  end
+  # describe "AND" do
+  #   test "compiles" do
+  #     assert {:ok,
+  #             [
+  #               ["load", "a"],
+  #               ["lit", 90],
+  #               ["comparator", "GT"],
+  #               ["jfalse", 4],
+  #               ["load", "a"],
+  #               ["lit", 90],
+  #               ["compare", "EQ"]
+  #             ]} = Predicator.compile("a > 90 and a = 90")
+  #   end
+  # end
 
   describe "OR" do
     test "compiles" do
@@ -223,6 +235,9 @@ defmodule PredicatorTest do
       assert Predicator.matches?("foo > 90 or foo < 80", foo: 85) == false
       assert Predicator.matches?("foo > 90 or foo < 80 or foo = 85", foo: 83) == false
     end
+  end
+
+  describe "JUMP" do
   end
 
   describe "PRESENT" do

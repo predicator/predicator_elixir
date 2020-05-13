@@ -37,9 +37,9 @@ Rules.
 {OR}           : {token, {jtrue, TokenLine}}.
 {BOOLEAN}      : {token, {lit, TokenLine, list_to_existing_atom(TokenChars)}}.
 {INTEGER}      : {token, {lit, TokenLine, list_to_integer(TokenChars)}}.
+{STRING}       : {token, {lit, TokenLine, sanitized_string(TokenChars)}}.
 {ATOM}         : {token, {load, TokenLine, list_to_atom(TokenChars)}}.
 {IDENTIFIER}   : {token, {load, TokenLine, list_to_atom(TokenChars)}}.
-{STRING}       : {token, {string, sanitized_string(TokenChars), TokenLine}}.
 {SYMBOLS}      : {token, {list_to_atom(TokenChars), TokenLine}}.
 {WHITESPACE}   : skip_token.
 % and            : {token, {jfalse, TokenLine, list_to_existing_atom(TokenChars)}}.
