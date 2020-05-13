@@ -9,12 +9,14 @@ IN           = (in|IN|IN)
 NOTIN        = (notin|NOTIN|NI|not\s\in)
 STARTS_WITH  = (starts_with|STARTS_WITH|SW|starts\swith|startswith)
 ENDS_WITH    = (ends_with|ENDS_WITH|EW|ends\swith|endswith)
+BLANK        = (is_blank|IS_BLANK|IB|is\sblank|isblank)
+PRESENT      = (is_present|IS_PRESENT|IP|is\spresent|ispresent)
 AND          = (and|AND|&)
 ATOM         = :[a-z_]+
 IDENTIFIER   = [a-z][A-Za-z0-9_]*
 INTEGER      = [0-9]+
 SYMBOLS      = [{}\[\],]
-STRING       = '((\?:\\.|[^\\''])*)'
+STRING       = ("((\?:\\.|[^\\""])*)"|'((\?:\\.|[^\\''])*)')
 BOOLEAN      = (true|false)
 
 
@@ -29,6 +31,8 @@ Rules.
 {NOTIN}        : {token, {comparator, TokenLine, 'NOTIN'}}.
 {STARTS_WITH}  : {token, {comparator, TokenLine, 'STARTSWITH'}}.
 {ENDS_WITH}    : {token, {comparator, TokenLine, 'ENDSWITH'}}.
+{BLANK}        : {token, {endcomparator, TokenLine, blank}}.
+{PRESENT}      : {token, {endcomparator, TokenLine, present}}.
 {AND}          : {token, {'&', TokenLine}}.
 {BOOLEAN}      : {token, {lit, TokenLine, list_to_existing_atom(TokenChars)}}.
 {INTEGER}      : {token, {lit, TokenLine, list_to_integer(TokenChars)}}.
@@ -42,5 +46,7 @@ Rules.
 
 
 Erlang code.
+sanitized_string("'" ++ _Rest = Str) ->
+  string:trim(list_to_binary(Str), both, "'");
 sanitized_string(Str) ->
-  string:trim(list_to_binary(Str), both, "'").
+  string:trim(list_to_binary(Str), both, "\"").
