@@ -82,7 +82,8 @@ defmodule PredicatorTest do
 
   describe "EQ" do
     test "compiles" do
-      assert {:ok, [["load", "foo"], ["lit", 1], ["comparator", "EQ"]]} = Predicator.compile("foo = 1")
+      assert {:ok, [["load", "foo"], ["lit", 1], ["comparator", "EQ"]]} =
+               Predicator.compile("foo = 1")
     end
 
     test "returns true if the equality is true" do
@@ -98,7 +99,8 @@ defmodule PredicatorTest do
 
   describe "GT" do
     test "compiles" do
-      assert {:ok, [["load", "foo"], ["lit", 1], ["comparator", "GT"]]} = Predicator.compile("foo > 1")
+      assert {:ok, [["load", "foo"], ["lit", 1], ["comparator", "GT"]]} =
+               Predicator.compile("foo > 1")
     end
 
     test "returns true if the inequality is true" do
@@ -114,7 +116,8 @@ defmodule PredicatorTest do
 
   describe "LT" do
     test "compiles" do
-      assert {:ok, [["load", "foo"], ["lit", 1], ["comparator", "LT"]]} = Predicator.compile("foo < 1")
+      assert {:ok, [["load", "foo"], ["lit", 1], ["comparator", "LT"]]} =
+               Predicator.compile("foo < 1")
     end
 
     test "returns true if the inequality is true" do
@@ -184,20 +187,43 @@ defmodule PredicatorTest do
     end
   end
 
-  # describe "AND" do
-  #   test "compiles" do
-  #     assert {:ok,
-  #             [
-  #               ["load", "a"],
-  #               ["lit", 90],
-  #               ["comparator", "GT"],
-  #               ["jfalse", 4],
-  #               ["load", "a"],
-  #               ["lit", 90],
-  #               ["compare", "EQ"]
-  #             ]} = Predicator.compile("a > 90 and a = 90")
-  #   end
-  # end
+  describe "AND" do
+    test "compiles" do
+      assert {:ok,
+              [
+                ["load", "a"],
+                ["lit", 90],
+                ["comparator", "GT"],
+                ["jfalse", 4],
+                ["load", "a"],
+                ["lit", 90],
+                ["comparator", "EQ"]
+              ]} = Predicator.compile("a > 90 and a = 90")
+
+      assert {:ok,
+              [
+                [:load, :foo],
+                [:lit, 90],
+                [:comparator, :GT],
+                [:jfalse, 4],
+                [:load, :foo],
+                [:lit, 90],
+                [:comparator, :EQ]
+              ]} = Predicator.compile("foo > 90 and foo = 90", :atom_key_inst)
+    end
+
+    test "evaluates to true" do
+      assert Predicator.matches?("95 > 90 and 95 > 80") == true
+      assert Predicator.matches?("foo > 90 and foo > 80", foo: 95) == true
+      assert Predicator.matches?("foo > 90 and foo > 80 and foo = 95", foo: 95) == true
+    end
+
+    test "evaluates to false" do
+      assert Predicator.matches?("85 > 90 and 85 > 80") == false
+      assert Predicator.matches?("foo > 90 and foo > 80", foo: 85) == false
+      assert Predicator.matches?("foo > 90 and foo > 80 and foo = 85", foo: 83) == false
+    end
+  end
 
   describe "OR" do
     test "compiles" do

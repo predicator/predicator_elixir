@@ -1,18 +1,15 @@
 Header
 "%% Predicator Elixir".
 
-Terminals lit load comparator endcomparator jfalse jtrue '[' ']' ',' '&'. 
+Terminals lit load comparator endcomparator between 'or' '[' ']' ',' 'and'. 
 
 Nonterminals predicates predicate value array array_elements.
 
 Rootsymbol predicates.
 
 predicates -> predicate : '$1'.
-% predicates -> predicate jfalse predicate : ['$1', jfalse, '$3']. %% jfalse
-% predicates -> predicates jfalse predicate : {'$1', jfalse, '$3'}.
-% predicates -> predicate jtrue predicate : ['$1', jtrue, '$3']. %% jtrue
-% predicates -> predicates jtrue predicate : {'$1', jtrue, '$3'}.
-predicates -> predicate jtrue predicates : lists:append('$1', [jump(jtrue, '$3') | '$3']).
+predicates -> predicate 'and' predicates : lists:append('$1', [jump(jfalse, '$3') | '$3']).
+predicates -> predicate 'or' predicates : lists:append('$1', [jump(jtrue, '$3') | '$3']).
 
 predicate -> load endcomparator : [unwrap('$1'), unwrap('$2')].
 predicate -> lit endcomparator : [unwrap('$1'), unwrap('$2')].
@@ -20,8 +17,8 @@ predicate -> lit comparator load : [unwrap('$1'), unwrap('$3'), unwrap('$2')].
 predicate -> load comparator lit : [unwrap('$1'), unwrap('$3'), unwrap('$2')].
 predicate -> lit comparator lit : [unwrap('$1'), unwrap('$3'), unwrap('$2')].
 predicate -> load comparator load : [unwrap('$1'), unwrap('$3'), unwrap('$2')].
-predicate -> load comparator lit '&' lit : [unwrap('$1'), unwrap('$3'), unwrap('$5'), unwrap('$2')].
-predicate -> lit comparator lit '&' lit : [unwrap('$1'), unwrap('$3'), unwrap('$5'), unwrap('$2')].
+predicate -> load between lit 'and' lit : [unwrap('$1'), unwrap('$3'), unwrap('$5'), unwrap('$2')].
+predicate -> lit between lit 'and' lit : [unwrap('$1'), unwrap('$3'), unwrap('$5'), unwrap('$2')].
 predicate -> load comparator array : [unwrap('$1'), [array, '$3'], unwrap('$2')].
 predicate -> lit comparator array : [unwrap('$1'), [array, '$3'], unwrap('$2')].
 
@@ -39,9 +36,10 @@ Erlang code.
 
 unwrap({_INST,_,V=blank}) -> [V];
 unwrap({_INST,_,V=present}) -> [V];
+unwrap({between,_,V}) -> [comparator, V];
 unwrap({INST,_,V}) -> [INST, V].
 
 extract_value({_, _, V}) -> V.
 
-jump(INST=jtrue, Predicates) ->
+jump(INST, Predicates) ->
   [INST, erlang:length(Predicates) + 1].

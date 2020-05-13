@@ -2,7 +2,7 @@
 
 ## v0.8.1
 * Enhancements
-  * Adds leex and parsing for `or`.
+  * Adds leex and parsing for `and` and `or`.
 
 ## v0.8.0
   * New

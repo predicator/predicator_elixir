@@ -26,15 +26,15 @@ Rules.
 {GREATER_THAN} : {token, {comparator, TokenLine, 'GT'}}.
 {LESS_THAN}    : {token, {comparator, TokenLine, 'LT'}}.
 {EQUAL}        : {token, {comparator, TokenLine, 'EQ'}}.
-{BETWEEN}      : {token, {comparator, TokenLine, 'BETWEEN'}}.
 {IN}           : {token, {comparator, TokenLine, 'IN'}}.
 {NOTIN}        : {token, {comparator, TokenLine, 'NOTIN'}}.
-{STARTS_WITH}  : {token, {comparator, TokenLine, 'STARTSWITH'}}.
 {ENDS_WITH}    : {token, {comparator, TokenLine, 'ENDSWITH'}}.
+{STARTS_WITH}  : {token, {comparator, TokenLine, 'STARTSWITH'}}.
+{BETWEEN}      : {token, {between, TokenLine, 'BETWEEN'}}.
 {BLANK}        : {token, {endcomparator, TokenLine, blank}}.
 {PRESENT}      : {token, {endcomparator, TokenLine, present}}.
-{AND}          : {token, {'&', TokenLine}}.
-{OR}           : {token, {jtrue, TokenLine}}.
+{AND}          : {token, {'and', TokenLine}}.
+{OR}           : {token, {'or', TokenLine}}.
 {BOOLEAN}      : {token, {lit, TokenLine, list_to_existing_atom(TokenChars)}}.
 {INTEGER}      : {token, {lit, TokenLine, list_to_integer(TokenChars)}}.
 {STRING}       : {token, {lit, TokenLine, sanitized_string(TokenChars)}}.
