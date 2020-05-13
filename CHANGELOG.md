@@ -4,7 +4,7 @@
   * New
     * `Predicator.matches?/3` accepts evaluator options.
   * Enhancements
-    * Adds leex and parsing for `isblank`.
+    * Adds leex and parsing for `isblank` and `ispresent`.
   * Fix
     * `in` and `notin` accept list of strings.
 

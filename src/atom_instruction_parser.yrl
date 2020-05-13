@@ -1,7 +1,7 @@
 Header
 "%% Predicator Elixir".
 
-Terminals lit load comparator jfalse jtrue '[' ']' ',' '&' string blank. 
+Terminals lit load comparator endcomparator jfalse jtrue '[' ']' ',' '&' string. 
 
 Nonterminals predicates predicate value array array_elements.
 
@@ -13,9 +13,9 @@ predicates -> predicates jfalse predicate : {'$1', jfalse, '$3'}.
 predicates -> predicate jtrue predicate : ['$1', jtrue, '$3']. %% jtrue
 predicates -> predicates jtrue predicate : {'$1', jtrue, '$3'}.
 
-predicate -> load blank : [unwrap('$1'), unwrap('$2')].
-predicate -> lit blank : [unwrap('$1'), unwrap('$2')].
-predicate -> string blank : [unwrap_string('$1'), unwrap('$2')].
+predicate -> load endcomparator : [unwrap('$1'), unwrap('$2')].
+predicate -> lit endcomparator : [unwrap('$1'), unwrap('$2')].
+predicate -> string endcomparator : [unwrap_string('$1'), unwrap('$2')].
 predicate -> lit comparator load : [unwrap('$1'), unwrap('$3'), unwrap('$2')].
 predicate -> load comparator lit : [unwrap('$1'), unwrap('$3'), unwrap('$2')].
 predicate -> lit comparator lit : [unwrap('$1'), unwrap('$3'), unwrap('$2')].
@@ -42,8 +42,9 @@ value -> array : '$1'.
 
 Erlang code.
 
-unwrap({INST,_,V}) -> [INST, V];
-unwrap({INST, _}) -> [INST].
+unwrap({_INST,_,V=blank}) -> [V];
+unwrap({_INST,_,V=present}) -> [V];
+unwrap({INST,_,V}) -> [INST, V].
 
 unwrap_string({_INST=string,V, _}) -> [lit, V].
 

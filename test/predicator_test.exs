@@ -185,8 +185,25 @@ defmodule PredicatorTest do
   end
 
   describe "PRESENT" do
-    test "not currently supported" do
-      assert {:error, _} = Predicator.compile("name present")
+    setup do
+      %{eval_opts: [map_type: :atom, nil_values: [nil, ""]]}
+    end
+
+    test "compiles" do
+      assert {:ok, [[:load, :foo], [:present]]} =
+               Predicator.compile("foo is present", :atom_key_inst)
+
+      assert {:ok, [["load", "foo"], ["present"]]} = Predicator.compile("foo is present")
+    end
+
+    test "evaluates to true", %{eval_opts: eval_opts} do
+      assert Predicator.matches?("'foo' is present", [], eval_opts) == true
+      assert Predicator.matches?("foo is present", [foo: "bar"], eval_opts) == true
+    end
+
+    test "evaluates to false", %{eval_opts: eval_opts} do
+      assert Predicator.matches?("'' is present", [], eval_opts) == false
+      assert Predicator.matches?("foo is present", [foo: ""], eval_opts) == false
     end
   end
 
