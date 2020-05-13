@@ -197,19 +197,23 @@ defmodule PredicatorTest do
   end
 
   describe "BLANK" do
+    setup do
+      %{eval_opts: [map_type: :atom, nil_values: [nil, ""]]}
+    end
+
     test "compiles" do
       assert {:ok, [[:load, :foo], [:blank]]} = Predicator.compile("foo is blank", :atom_key_inst)
       assert {:ok, [["load", "foo"], ["blank"]]} = Predicator.compile("foo is blank")
     end
 
-    test "evaluates to true" do
-      assert Predicator.matches?("'' is blank") == true
-      assert Predicator.matches?("foo is blank", foo: "") == true
+    test "evaluates to true", %{eval_opts: eval_opts} do
+      assert Predicator.matches?("'' is blank", [], eval_opts) == true
+      assert Predicator.matches?("foo is blank", [foo: ""], eval_opts) == true
     end
 
-    test "evaluates to false" do
-      assert Predicator.matches?("'foo' is blank") == false
-      assert Predicator.matches?("foo is blank", foo: "bar") == false
+    test "evaluates to false", %{eval_opts: eval_opts} do
+      assert Predicator.matches?("'foo' is blank", [], eval_opts) == false
+      assert Predicator.matches?("foo is blank", [foo: "bar"], eval_opts) == false
     end
   end
 end

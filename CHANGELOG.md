@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.8.0
+  * New
+    * `Predicator.matches?/3` accepts evaluator options.
+  * Enhancements
+    * Adds leex and parsing for `isblank`.
+  * Fix
+    * `in` and `notin` accept list of strings.
+
 ## v0.7.3
   * Enhancements
     * Adds leex and parsing for `in`, `notin`, `between`, `startswith`, `endswith` instructions

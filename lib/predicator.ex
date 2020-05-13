@@ -68,8 +68,15 @@ defmodule Predicator do
     end
   end
 
-  @doc "eval/3 takes a predicate set, a context struct and options"
-  def eval(inst, context \\ %{}, opts \\ [map_type: :string, nil_values: ["", nil]])
+  @doc """
+  Takes a predicate set, a context struct and options.
+
+  Eval options:
+  * `map_type`: type of keys for context map, `:atom` or `:string`. Defaults to `:string`.
+  * `nil_values`: list of values considered "blank" for `isblank` comparison. Defaults to `["", nil]`.
+
+  """
+  def eval(inst, context \\ %{}, opts \\ [map_type: :string])
   def eval(inst, context, opts), do: Evaluator.execute(inst, context, opts)
 
   def compile(predicate, token_type \\ :string_key_inst) do
@@ -91,6 +98,28 @@ defmodule Predicator do
   def matches?(predicate, context) when is_binary(predicate) or is_list(predicate) do
     with {:ok, predicate} <- compile(predicate) do
       eval(predicate, context)
+    end
+  end
+
+  @doc """
+  Takes in a predicate and context and returns the match result.
+  Context can be either a list or map. Accepts same options as `eval/3`.
+
+  ```
+  iex> matches?("fruit in ['apple', 'pear']", %{"fruit" => "watermelon"}, [map_type: :string])
+  false
+
+  iex> matches?("fruit in ['apple', 'pear']", [fruit: "pear"], [map_type: :atom])
+  true
+
+  iex> matches?("fruit is blank", [fruit: nil], [map_type: :atom, nil_values: [nil]])
+  true
+
+  ```
+  """
+  def matches?(predicate, context, eval_opts) do
+    with {:ok, predicate} <- compile(predicate) do
+      eval(predicate, context, eval_opts)
     end
   end
 end
