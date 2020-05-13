@@ -8,10 +8,11 @@ Nonterminals predicates predicate value array array_elements.
 Rootsymbol predicates.
 
 predicates -> predicate : '$1'.
-predicates -> predicate jfalse predicate : ['$1', jfalse, '$3']. %% jfalse
-predicates -> predicates jfalse predicate : {'$1', jfalse, '$3'}.
-predicates -> predicate jtrue predicate : ['$1', jtrue, '$3']. %% jtrue
-predicates -> predicates jtrue predicate : {'$1', jtrue, '$3'}.
+% predicates -> predicate jfalse predicate : ['$1', jfalse, '$3']. %% jfalse
+% predicates -> predicates jfalse predicate : {'$1', jfalse, '$3'}.
+% predicates -> predicate jtrue predicate : ['$1', jtrue, '$3']. %% jtrue
+% predicates -> predicates jtrue predicate : {'$1', jtrue, '$3'}.
+predicates -> predicate jtrue predicates : lists:append('$1', [jump(jtrue, '$3') | '$3']).
 
 predicate -> load endcomparator : [unwrap('$1'), unwrap('$2')].
 predicate -> lit endcomparator : [unwrap('$1'), unwrap('$2')].
@@ -50,3 +51,6 @@ unwrap_string({_INST=string,V, _}) -> [lit, V].
 
 extract_string({_, Str, _}) -> Str.
 extract_value({_, _, V}) -> V.
+
+jump(INST=jtrue, Predicates) ->
+  [INST, erlang:length(Predicates) + 1].

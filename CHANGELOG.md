@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.8.1
+* Enhancements
+  * Adds leex and parsing for `or`.
+
 ## v0.8.0
   * New
     * `Predicator.matches?/3` accepts evaluator options.

@@ -1,17 +1,18 @@
 Header
 "%% Predicator Elixir".
 
-Terminals lit load comparator endcomparator jfalse jtrue '[' ']' ',' '&' string blank.
+Terminals lit load comparator endcomparator jfalse jtrue '[' ']' ',' '&' string.
 
 Nonterminals predicates predicate value array array_elements.
 
 Rootsymbol predicates.
 
 predicates -> predicate : '$1'.
-predicates -> predicate jfalse predicate : ['$1', jfalse, '$3']. %% jfalse
-predicates -> predicates jfalse predicate : {'$1', jfalse, '$3'}.
-predicates -> predicate jtrue predicate : ['$1', jtrue, '$3']. %% jtrue
-predicates -> predicates jtrue predicate : {'$1', jtrue, '$3'}.
+% predicates -> predicate jfalse predicate : ['$1', jfalse, '$3']. %% jfalse
+% predicates -> predicates jfalse predicate : {'$1', jfalse, '$3'}.
+% predicates -> predicate jtrue predicate : ['$1', jtrue, '$3']. %% jtrue
+% predicates -> predicates jtrue predicate : {'$1', jtrue, '$3'}.
+predicates -> predicate jtrue predicates : lists:append('$1', [jump(jtrue, '$3') | '$3']).
 
 predicate -> load endcomparator : [unwrap('$1'), unwrap('$2')].
 predicate -> lit endcomparator : [unwrap('$1'), unwrap('$2')].
@@ -71,3 +72,6 @@ tobin(ATOM) -> erlang:atom_to_binary(ATOM, utf8).
 extract_string({_, Str, _}) -> Str.
 
 extract_value({_, _, V}) -> V.
+
+jump(INST=jtrue, Predicates) ->
+  [tobin(INST), erlang:length(Predicates) + 1].

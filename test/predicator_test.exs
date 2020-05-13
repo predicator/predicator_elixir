@@ -187,6 +187,44 @@ defmodule PredicatorTest do
   describe "JUMP" do
   end
 
+  describe "OR" do
+    test "compiles" do
+      assert {:ok,
+              [
+                ["load", "foo"],
+                ["lit", 90],
+                ["comparator", "GT"],
+                ["jtrue", 4],
+                ["load", "foo"],
+                ["lit", 90],
+                ["comparator", "EQ"]
+              ]} = Predicator.compile("foo > 90 or foo = 90")
+
+      assert {:ok,
+              [
+                [:load, :foo],
+                [:lit, 90],
+                [:comparator, :GT],
+                [:jtrue, 4],
+                [:load, :foo],
+                [:lit, 90],
+                [:comparator, :EQ]
+              ]} = Predicator.compile("foo > 90 or foo = 90", :atom_key_inst)
+    end
+
+    test "evaluates to true" do
+      assert Predicator.matches?("95 > 90 or 95 < 80") == true
+      assert Predicator.matches?("foo > 90 or foo < 80", foo: 75) == true
+      assert Predicator.matches?("foo > 90 or foo < 80 or foo = 85", foo: 85) == true
+    end
+
+    test "evaluates to false" do
+      assert Predicator.matches?("85 > 90 or 85 < 80") == false
+      assert Predicator.matches?("foo > 90 or foo < 80", foo: 85) == false
+      assert Predicator.matches?("foo > 90 or foo < 80 or foo = 85", foo: 83) == false
+    end
+  end
+
   describe "PRESENT" do
     setup do
       %{eval_opts: [map_type: :atom, nil_values: [nil, ""]]}
@@ -207,12 +245,6 @@ defmodule PredicatorTest do
     test "evaluates to false", %{eval_opts: eval_opts} do
       assert Predicator.matches?("'' is present", [], eval_opts) == false
       assert Predicator.matches?("foo is present", [foo: ""], eval_opts) == false
-    end
-  end
-
-  describe "OR" do
-    test "not currently supported" do
-      assert {:error, _} = Predicator.compile("true or false")
     end
   end
 
