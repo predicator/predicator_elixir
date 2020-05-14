@@ -19,6 +19,7 @@ INTEGER      = [0-9]+
 SYMBOLS      = [{}\[\],]
 STRING       = ("((\?:\\.|[^\\""])*)"|'((\?:\\.|[^\\''])*)')
 BOOLEAN      = (true|false)
+BANG         = (!)
 
 
 Rules.
@@ -35,6 +36,7 @@ Rules.
 {PRESENT}      : {token, {endcomparator, TokenLine, present}}.
 {AND}          : {token, {'and', TokenLine}}.
 {OR}           : {token, {'or', TokenLine}}.
+{BANG}         : {token, {bang, TokenLine}}.
 {BOOLEAN}      : {token, {lit, TokenLine, list_to_existing_atom(TokenChars)}}.
 {INTEGER}      : {token, {lit, TokenLine, list_to_integer(TokenChars)}}.
 {STRING}       : {token, {lit, TokenLine, sanitized_string(TokenChars)}}.
@@ -42,8 +44,6 @@ Rules.
 {IDENTIFIER}   : {token, {load, TokenLine, list_to_atom(TokenChars)}}.
 {SYMBOLS}      : {token, {list_to_atom(TokenChars), TokenLine}}.
 {WHITESPACE}   : skip_token.
-% and            : {token, {jfalse, TokenLine, list_to_existing_atom(TokenChars)}}.
-% or             : {token, {jtrue, TokenLine, list_to_existing_atom(TokenChars)}}.
 
 
 Erlang code.

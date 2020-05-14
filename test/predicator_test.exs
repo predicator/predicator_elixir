@@ -5,6 +5,43 @@ defmodule PredicatorTest do
 
   @moduletag :parsing
 
+  describe "BOOLEAN" do
+    test "commpiles string key instructions" do
+      assert {:ok, [["load", "foo"], ["to_bool"]]} = Predicator.compile("foo")
+      assert {:ok, [["load", "foo"], ["to_bool"], ["not"]]} = Predicator.compile("!foo")
+      assert {:ok, [["lit", true]]} = Predicator.compile("true")
+      assert {:ok, [["lit", false]]} = Predicator.compile("false")
+      assert {:ok, [["lit", true], ["not"]]} = Predicator.compile("!true")
+      assert {:ok, [["lit", false], ["not"]]} = Predicator.compile("!false")
+    end
+
+    test "compiles atom key instructions" do
+      assert {:ok, [[:load, :foo], [:to_bool]]} = Predicator.compile("foo", :atom_key_inst)
+
+      assert {:ok, [[:load, :foo], [:to_bool], [:not]]} =
+               Predicator.compile("!foo", :atom_key_inst)
+
+      assert {:ok, [[:lit, true]]} = Predicator.compile("true", :atom_key_inst)
+      assert {:ok, [[:lit, false]]} = Predicator.compile("false", :atom_key_inst)
+      assert {:ok, [[:lit, true], [:not]]} = Predicator.compile("!true", :atom_key_inst)
+      assert {:ok, [[:lit, false], [:not]]} = Predicator.compile("!false", :atom_key_inst)
+    end
+
+    test "evaluates to true" do
+      assert Predicator.matches?("true") == true
+      assert Predicator.matches?("!false") == true
+      assert Predicator.matches?("foo", foo: true) == true
+      assert Predicator.matches?("!foo", foo: false) == true
+    end
+
+    test "evaluates to false" do
+      assert Predicator.matches?("!true") == false
+      assert Predicator.matches?("false") == false
+      assert Predicator.matches?("foo", foo: false) == false
+      assert Predicator.matches?("!foo", foo: true) == false
+    end
+  end
+
   describe "BETWEEN" do
     test "compiles" do
       assert {:ok, [[:load, :age], [:lit, 5], [:lit, 10], [:comparator, :BETWEEN]]} =
@@ -213,15 +250,16 @@ defmodule PredicatorTest do
     end
 
     test "evaluates to true" do
-      assert Predicator.matches?("95 > 90 and 95 > 80") == true
-      assert Predicator.matches?("foo > 90 and foo > 80", foo: 95) == true
-      assert Predicator.matches?("foo > 90 and foo > 80 and foo = 95", foo: 95) == true
+      assert Predicator.matches?("true and true") == true
+      assert Predicator.matches?("foo and foo", foo: true) == true
+      assert Predicator.matches?("foo and foo and foo", foo: true) == true
     end
 
     test "evaluates to false" do
-      assert Predicator.matches?("85 > 90 and 85 > 80") == false
-      assert Predicator.matches?("foo > 90 and foo > 80", foo: 85) == false
-      assert Predicator.matches?("foo > 90 and foo > 80 and foo = 85", foo: 83) == false
+      assert Predicator.matches?("true and false") == false
+      assert Predicator.matches?("true and true and false") == false
+      assert Predicator.matches?("foo and foo", foo: false) == false
+      assert Predicator.matches?("foo and foo and bar", foo: true, bar: false) == false
     end
   end
 
@@ -251,15 +289,17 @@ defmodule PredicatorTest do
     end
 
     test "evaluates to true" do
-      assert Predicator.matches?("95 > 90 or 95 < 80") == true
-      assert Predicator.matches?("foo > 90 or foo < 80", foo: 75) == true
-      assert Predicator.matches?("foo > 90 or foo < 80 or foo = 85", foo: 85) == true
+      assert Predicator.matches?("true or true") == true
+      assert Predicator.matches?("false or true") == true
+      assert Predicator.matches?("true or false") == true
+      assert Predicator.matches?("false or true or false") == true
+      assert Predicator.matches?("foo or bar", foo: true, bar: false) == true
     end
 
     test "evaluates to false" do
-      assert Predicator.matches?("85 > 90 or 85 < 80") == false
-      assert Predicator.matches?("foo > 90 or foo < 80", foo: 85) == false
-      assert Predicator.matches?("foo > 90 or foo < 80 or foo = 85", foo: 83) == false
+      assert Predicator.matches?("false or false") == false
+      assert Predicator.matches?("foo or foo", foo: false) == false
+      assert Predicator.matches?("foo or bar or foo", foo: false, bar: false) == false
     end
   end
 
