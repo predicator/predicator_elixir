@@ -10,7 +10,7 @@ The package can be installed by:
 
   ```elixir
   def deps do
-    [{:predicator, "~> 0.7"}]
+    [{:predicator, "~> 0.9"}]
   end
   ```
 
@@ -19,7 +19,7 @@ The package can be installed by:
   ```elixir
   def deps do
     [
-      {:predicator, "~> 0.7"},
+      {:predicator, "~> 0.9"},
       {:predicator_ecto, ">= 0.0.0"},
     ]
   end
@@ -28,4 +28,9 @@ The package can be installed by:
 ### Using
 
 _Currently has working Evaluator for Predicator instructions & limited lexing and parsing_
+
+### TODO:
+
+- [ ] Lex and parse parens
+- [ ] Lex and parse `date`, `duration`, `ago`, `fromnow`
 

@@ -2,14 +2,15 @@ defmodule Predicator.Evaluator do
   @moduledoc "Evaluator Module"
   alias Predicator.{
     InstructionNotCompleteError,
-    Machine,
+    Machine
   }
 
   @typedoc "Error types returned from Predicator.Evaluator"
-  @type error_t :: {:error,
-    InstructionError.t()
-    | ValueError.t()
-    | InstructionNotCompleteError.t() }
+  @type error_t ::
+          {:error,
+           InstructionError.t()
+           | ValueError.t()
+           | InstructionNotCompleteError.t()}
 
   def execute(%Machine{} = machine) do
     case Machine.step(machine) do
@@ -25,7 +26,8 @@ defmodule Predicator.Evaluator do
             execute(machine)
         end
 
-      {:error, _reason} = err -> err
+      {:error, _reason} = err ->
+        err
     end
   end
 
@@ -40,21 +42,22 @@ defmodule Predicator.Evaluator do
   iex> Predicator.Evaluator.execute([["lit", true]])
   true
 
-  iex> Predicator.Evaluator.execute([["lit", 2], ["lit", 3], ["comparator", "LT"]])
+  iex> Predicator.Evaluator.execute([["lit", 2], ["lit", 3], ["compare", "LT"]])
   true
 
-  iex> Predicator.Evaluator.execute([["load", "age"], ["lit", 18], ["comparator", "GT"]], %{age: 19})
+  iex> Predicator.Evaluator.execute([["load", "age"], ["lit", 18], ["compare", "GT"]], %{age: 19})
   true
 
-  iex> Predicator.Evaluator.execute([["load", "name"], ["lit", "jrichocean"], ["comparator", "EQ"]], %{age: 19})
-  {:error, %Predicator.ValueError{error: "Non valid load value to evaluate", instruction_pointer: 0, instructions: [["load", "name"], ["lit", "jrichocean"], ["comparator", "EQ"]], stack: [], opts: [map_type: :string, nil_values: ["", nil]]}}
+  iex> Predicator.Evaluator.execute([["load", "name"], ["lit", "jrichocean"], ["compare", "EQ"]], %{age: 19})
+  {:error, %Predicator.ValueError{error: "Non valid load value to evaluate", instruction_pointer: 0, instructions: [["load", "name"], ["lit", "jrichocean"], ["compare", "EQ"]], stack: [], opts: [map_type: :string, nil_values: ["", nil]]}}
 
-  iex> Predicator.Evaluator.execute([["load", "age"], ["lit", 18], ["comparator", "GT"]], %{"age" => 19}, [map_type: :string])
+  iex> Predicator.Evaluator.execute([["load", "age"], ["lit", 18], ["compare", "GT"]], %{"age" => 19}, [map_type: :string])
   true
 
   """
-  @spec execute(list(), struct()|map()) :: boolean() | error_t
-  def execute(inst, context \\ %{}, opts \\ [map_type: :string, nil_values: ["", nil]]) when is_list(inst) do
+  @spec execute(list(), struct() | map()) :: boolean() | error_t
+  def execute(inst, context \\ %{}, opts \\ [map_type: :string, nil_values: ["", nil]])
+      when is_list(inst) do
     inst
     |> to_machine(context, opts)
     |> execute

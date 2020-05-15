@@ -17,7 +17,7 @@ defmodule Predicator.EvaluatorOperation.JumpTest do
 
     @tag :jump
     test "false or integer equal integer" do
-      inst = [["lit", false], ["jtrue", 4], ["lit", 1], ["lit", 1], ["comparator", "EQ"]]
+      inst = [["lit", false], ["jtrue", 4], ["lit", 1], ["lit", 1], ["compare", "EQ"]]
       assert execute(inst) == true
     end
   end

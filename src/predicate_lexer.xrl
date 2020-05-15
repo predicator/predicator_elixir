@@ -24,16 +24,16 @@ BANG         = (!)
 
 Rules.
 
-{GREATER_THAN} : {token, {comparator, TokenLine, 'GT'}}.
-{LESS_THAN}    : {token, {comparator, TokenLine, 'LT'}}.
-{EQUAL}        : {token, {comparator, TokenLine, 'EQ'}}.
-{IN}           : {token, {comparator, TokenLine, 'IN'}}.
-{NOTIN}        : {token, {comparator, TokenLine, 'NOTIN'}}.
-{ENDS_WITH}    : {token, {comparator, TokenLine, 'ENDSWITH'}}.
-{STARTS_WITH}  : {token, {comparator, TokenLine, 'STARTSWITH'}}.
+{GREATER_THAN} : {token, {compare, TokenLine, 'GT'}}.
+{LESS_THAN}    : {token, {compare, TokenLine, 'LT'}}.
+{EQUAL}        : {token, {compare, TokenLine, 'EQ'}}.
+{IN}           : {token, {compare, TokenLine, 'IN'}}.
+{NOTIN}        : {token, {compare, TokenLine, 'NOTIN'}}.
+{ENDS_WITH}    : {token, {compare, TokenLine, 'ENDSWITH'}}.
+{STARTS_WITH}  : {token, {compare, TokenLine, 'STARTSWITH'}}.
 {BETWEEN}      : {token, {between, TokenLine, 'BETWEEN'}}.
-{BLANK}        : {token, {endcomparator, TokenLine, blank}}.
-{PRESENT}      : {token, {endcomparator, TokenLine, present}}.
+{BLANK}        : {token, {endcompare, TokenLine, blank}}.
+{PRESENT}      : {token, {endcompare, TokenLine, present}}.
 {AND}          : {token, {'and', TokenLine}}.
 {OR}           : {token, {'or', TokenLine}}.
 {BANG}         : {token, {bang, TokenLine}}.
