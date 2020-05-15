@@ -1,7 +1,7 @@
 Header
 "%% Predicator Elixir".
 
-Terminals lit load comparator endcomparator bang between 'or' '[' ']' ',' 'and'. 
+Terminals lit load compare endcompare bang between 'or' '[' ']' ',' 'and'. 
 
 Nonterminals predicates predicate_group predicate variable array array_elements array_value.
 
@@ -16,10 +16,10 @@ predicate_group -> predicate 'or' predicates : lists:append('$1', [jump(jtrue, '
 
 predicate -> lit : [unwrap('$1')].
 predicate -> load : [unwrap('$1'), [to_bool]].
-predicate -> variable endcomparator : ['$1', unwrap('$2')].
-predicate -> variable comparator variable : ['$1', '$3', unwrap('$2')].
+predicate -> variable endcompare : ['$1', unwrap('$2')].
+predicate -> variable compare variable : ['$1', '$3', unwrap('$2')].
 predicate -> variable between lit 'and' lit : ['$1', unwrap('$3'), unwrap('$5'), unwrap('$2')].
-predicate -> variable comparator array : ['$1', [array, '$3'], unwrap('$2')].
+predicate -> variable compare array : ['$1', [array, '$3'], unwrap('$2')].
 
 variable -> lit : unwrap('$1').
 variable -> load : unwrap('$1').
@@ -39,7 +39,7 @@ Erlang code.
 
 unwrap({_INST,_,V=blank}) -> [V];
 unwrap({_INST,_,V=present}) -> [V];
-unwrap({between,_,V}) -> [comparator, V];
+unwrap({between,_,V}) -> [compare, V];
 unwrap({INST,_,V}) -> [INST, V].
 
 extract_value({_, _, V}) -> V.

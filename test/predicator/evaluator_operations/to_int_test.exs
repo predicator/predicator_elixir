@@ -4,7 +4,7 @@ defmodule Predicator.EvaluatorOperation.ToIntTest do
 
   @moduletag :parsed
 
-  defmodule TestUser, do: defstruct [string_age: "29", age: 29]
+  defmodule TestUser, do: defstruct(string_age: "29", age: 29)
 
   describe "[\"TOINT\"] operation" do
     test "string_int coercion from lit val" do
@@ -12,8 +12,9 @@ defmodule Predicator.EvaluatorOperation.ToIntTest do
         ["lit", "29"],
         ["to_int"],
         ["load", "age"],
-        ["comparator", "EQ"]
+        ["compare", "EQ"]
       ]
+
       assert execute(inst, %TestUser{}) == true
     end
 
@@ -22,10 +23,10 @@ defmodule Predicator.EvaluatorOperation.ToIntTest do
         ["load", "string_age"],
         ["to_int"],
         ["lit", 29],
-        ["comparator", "EQ"]
+        ["compare", "EQ"]
       ]
+
       assert execute(inst, %TestUser{}) == true
     end
-
   end
 end

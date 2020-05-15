@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.9.0
+  * BREAKING CHANGE
+    * Evaluates `compare` instead of `comparator` to be compatible with ruby predicator lib.
+
 ## v0.8.1
 * Enhancements
   * Adds leex and parsing for `and` and `or`.

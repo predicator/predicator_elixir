@@ -2,16 +2,16 @@ defmodule Predicator.EvaluatorOperation.BetweenTest do
   use ExUnit.Case
   import Predicator.Evaluator
 
-  defmodule TstStruct, do: defstruct [created_at: "2012-12-12"]
+  defmodule TstStruct, do: defstruct(created_at: "2012-12-12")
 
   @moduletag :now
 
   describe "[\"BETWEEN\"] operation" do
     @tag :current
     test "inclusive evaluation of integer BETWEEN integers" do
-      inst  = [["lit", 3], ["lit", 1], ["lit", 5], ["comparator", "BETWEEN"]]
-      inst2 = [["lit", 1], ["lit", 1], ["lit", 5], ["comparator", "BETWEEN"]]
-      inst3 = [["lit", 5], ["lit", 1], ["lit", 5], ["comparator", "BETWEEN"]]
+      inst = [["lit", 3], ["lit", 1], ["lit", 5], ["compare", "BETWEEN"]]
+      inst2 = [["lit", 1], ["lit", 1], ["lit", 5], ["compare", "BETWEEN"]]
+      inst3 = [["lit", 5], ["lit", 1], ["lit", 5], ["compare", "BETWEEN"]]
 
       assert execute(inst) == true
       assert execute(inst2) == true
@@ -24,10 +24,11 @@ defmodule Predicator.EvaluatorOperation.BetweenTest do
         ["to_date"],
         ["lit", 1],
         ["to_date"],
-        ["lit", 5000000000],
+        ["lit", 5_000_000_000],
         ["to_date"],
-        ["comparator", "BETWEEN"]
+        ["compare", "BETWEEN"]
       ]
+
       assert execute(inst) == true
     end
 
@@ -35,12 +36,13 @@ defmodule Predicator.EvaluatorOperation.BetweenTest do
       inst = [
         ["load", "created_at"],
         ["to_date"],
-        ["lit", 259200],
+        ["lit", 259_200],
         ["to_date"],
-        ["lit", 5000000000],
+        ["lit", 5_000_000_000],
         ["to_date"],
-        ["comparator", "BETWEEN"]
+        ["compare", "BETWEEN"]
       ]
+
       assert execute(inst, %TstStruct{}) == true
     end
   end
